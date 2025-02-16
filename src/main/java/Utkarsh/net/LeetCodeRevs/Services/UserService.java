@@ -1,0 +1,36 @@
+package Utkarsh.net.LeetCodeRevs.Services;
+
+import Utkarsh.net.LeetCodeRevs.Entity.User;
+import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
+    public void createUser(User user) {
+        user.setEmail(user.getEmail());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+    }
+
+    public Optional<User> findUserById(ObjectId objectId) {
+        return userRepository.findById(objectId);
+    }
+
+    public User findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+}
