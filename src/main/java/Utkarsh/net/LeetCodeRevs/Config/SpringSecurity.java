@@ -37,7 +37,7 @@ public class SpringSecurity {
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll() // Allow signup and login
-                        .requestMatchers("/user/**").authenticated() // Secure user endpoints
+                        .requestMatchers("/user/**", "/questions/**").authenticated() // Secure user endpoints
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults()) // Enable Basic Auth
