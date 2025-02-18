@@ -1,5 +1,6 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
+import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -18,6 +19,7 @@ public class Questions {
     private ObjectId id;
     private String questionLink;
     private String questionName; // Auto-generated name
+    private LeetCodeProblem questionData;
     private List<String> solutions; // Store multiple solutions
 
     @CreatedDate
@@ -62,5 +64,14 @@ public class Questions {
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
+
+    public LeetCodeProblem getQuestionData() {
+        return questionData;
+    }
+
+    public void setQuestionData(LeetCodeProblem questionData) {
+        this.questionData = questionData;
+    }
+
 
 }

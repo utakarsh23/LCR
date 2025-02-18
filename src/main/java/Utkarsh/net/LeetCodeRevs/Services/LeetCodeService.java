@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class LeetCodeService {
@@ -25,24 +24,29 @@ public class LeetCodeService {
         this.objectMapper = objectMapper;
     }
 
-    public LeetCodeProblem fetchProblemData(String titleSlug) {
-        String url = "https://leetcode.com/graphql";
+    //using query to gather data from the provided link
+    public LeetCodeProblem fetchProblemData(String fullUrl) {
+        // Extract the titleSlug from the full URL
+        String titleSlug = fullUrl.substring(fullUrl.lastIndexOf("/") + 1);
+
+        // GraphQL URL remains the same
+        String graphqlUrl = "https://leetcode.com/graphql";
 
         // GraphQL Query
         String query = """
-            query selectProblem($titleSlug: String!) {
-                question(titleSlug: $titleSlug) {
-                    questionId
-                    title
-                    content
-                    difficulty
-                    exampleTestcases
-                    topicTags {
-                        name
-                    }
+        query selectProblem($titleSlug: String!) {
+            question(titleSlug: $titleSlug) {
+                questionId
+                title
+                content
+                difficulty
+                exampleTestcases
+                topicTags {
+                    name
                 }
             }
-        """;
+        }
+    """;
 
         // Request Body
         Map<String, Object> requestBody = new HashMap<>();
@@ -55,7 +59,7 @@ public class LeetCodeService {
 
         // HTTP Request
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(graphqlUrl, HttpMethod.POST, requestEntity, String.class);
 
         try {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
@@ -75,6 +79,7 @@ public class LeetCodeService {
             problem.setDifficulty(questionNode.get("difficulty").asText());
             problem.setExampleTestcases(questionNode.get("exampleTestcases").asText());
             problem.setTopicTags(topics);
+            problem.setUrl(fullUrl);  // Set the complete URL
 
             return problem;
         } catch (Exception e) {

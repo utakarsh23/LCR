@@ -1,10 +1,12 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
 
+import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
 import Utkarsh.net.LeetCodeRevs.Entity.Questions;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.QuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
+import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,7 @@ public class QuestionController {
     private QuestionService questionService;
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private LeetCodeService leetCodeService;
 
     @Autowired
     private UserRepository userRepository;
@@ -38,6 +40,10 @@ public class QuestionController {
             if(questionRequest.getQuestionLink() == null || questionRequest.getSolutions() == null || questionRequest.getSolutions().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
+
+
+        LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(questionRequest.getQuestionLink());
+        questionRequest.setQuestionData(leetCodeProblem);
             questionRequest.setQuestionLink(questionRequest.getQuestionLink());
 //            questionRequest.setSolutions(questionRequest.getSolutions());
         Questions questions = questionService.postSolution(questionRequest);
