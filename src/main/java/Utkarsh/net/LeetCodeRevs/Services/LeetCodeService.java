@@ -36,8 +36,6 @@ public class LeetCodeService {
                     title
                     content
                     difficulty
-                    likes
-                    dislikes
                     exampleTestcases
                     topicTags {
                         name
@@ -75,8 +73,6 @@ public class LeetCodeService {
             problem.setTitle(questionNode.get("title").asText());
             problem.setContent(questionNode.get("content").asText());
             problem.setDifficulty(questionNode.get("difficulty").asText());
-            problem.setLikes(questionNode.get("likes").asInt());
-            problem.setDislikes(questionNode.get("dislikes").asInt());
             problem.setExampleTestcases(questionNode.get("exampleTestcases").asText());
             problem.setTopicTags(topics);
 

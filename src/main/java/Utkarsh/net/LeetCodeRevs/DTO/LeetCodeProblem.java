@@ -7,8 +7,6 @@ public class LeetCodeProblem {
     private String title;
     private String content;
     private String difficulty;
-    private int likes;
-    private int dislikes;
     private String exampleTestcases;
     private List<String> topicTags;
 
@@ -25,12 +23,6 @@ public class LeetCodeProblem {
     public String getDifficulty() { return difficulty; }
     public void setDifficulty(String difficulty) { this.difficulty = difficulty; }
 
-    public int getLikes() { return likes; }
-    public void setLikes(int likes) { this.likes = likes; }
-
-    public int getDislikes() { return dislikes; }
-    public void setDislikes(int dislikes) { this.dislikes = dislikes; }
-
     public String getExampleTestcases() { return exampleTestcases; }
     public void setExampleTestcases(String exampleTestcases) { this.exampleTestcases = exampleTestcases; }
 
@@ -41,7 +33,6 @@ public class LeetCodeProblem {
     public String toString() {
         return "Problem: " + title + "\n" +
                "Difficulty: " + difficulty + "\n" +
-               "Likes: " + likes + ", Dislikes: " + dislikes + "\n" +
                "Example Testcases: " + exampleTestcases + "\n" +
                "Topics: " + String.join(", ", topicTags);
     }
