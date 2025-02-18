@@ -33,7 +33,7 @@ public class QuestionController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/postQues")
+    @PostMapping("/postQues") //this is for the first time solution submission until it gets automated
     public ResponseEntity<Questions> postSolution(@RequestBody Questions questionRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
