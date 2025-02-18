@@ -1,7 +1,6 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
 
-import Utkarsh.net.LeetCodeRevs.DTO.QuestionRequestDTO;
 import Utkarsh.net.LeetCodeRevs.Entity.Questions;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.QuestionRepository;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/questions")
@@ -34,16 +31,15 @@ public class QuestionController {
     @Autowired
     private UserRepository userRepository;
 
-
     @PostMapping("/postQues")
     public ResponseEntity<Questions> postSolution(@RequestBody Questions questionRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-            if(questionRequest.getQuestionLink() == null || questionRequest.getSolutions() == null) {
+            if(questionRequest.getQuestionLink() == null || questionRequest.getSolutions() == null || questionRequest.getSolutions().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
             questionRequest.setQuestionLink(questionRequest.getQuestionLink());
-            questionRequest.setSolutions(questionRequest.getSolutions());
+//            questionRequest.setSolutions(questionRequest.getSolutions());
         Questions questions = questionService.postSolution(questionRequest);
 
         User userByEmail = userRepository.findUserByEmail(email);
