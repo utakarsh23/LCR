@@ -1,11 +1,13 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,8 +24,22 @@ public class Questions {
     private LeetCodeProblem questionData;
     private List<String> solutions; // Store multiple solutions
 
+    @DBRef
+    @JsonIgnore
+    private User user;
+
+
     @CreatedDate
     private LocalDateTime createdDate;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 
     public ObjectId getId() {
         return id;
