@@ -6,6 +6,7 @@ import Utkarsh.net.LeetCodeRevs.Entity.Questions;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.QuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
+import Utkarsh.net.LeetCodeRevs.Services.GeminiService;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class QuestionController {
 
     @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
+    private GeminiService geminiService;
 
     @PostMapping("/postQues") //this is for the first time solution submission until it gets automated
     public ResponseEntity<Questions> postSolution(@RequestBody Questions questionRequest) {
@@ -79,10 +83,13 @@ public class QuestionController {
         return questions.get(random.nextInt(questions.size()));
     }
 
-//    @PostMapping("/postSolution")
-//    public ResponseEntity<?> postDailySolution(@RequestBody String input) {
-//
-//    }
+    @PostMapping("/postSolution")
+    public ResponseEntity<?> postDailySolution(@RequestBody String input) {
+        int text = geminiService.askGemini(input).indexOf("text");
+        CharSequence charSequence = geminiService.askGemini(input).subSequence(text + 7, text + 15); //hard code lol
+        return new ResponseEntity<>(charSequence,HttpStatus.OK);
+    }
+
 @Scheduled(cron = "00 49 21 * * ?")
 public void assignRandomQuestionToUsers() {
     List<User> users = userRepository.findAll();

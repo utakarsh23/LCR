@@ -51,4 +51,11 @@ public class UserController {
             userService.createUser(userInDb);
             return new ResponseEntity<>(user,HttpStatus.FOUND);
     }
+
+    @PostMapping("/signout")
+    public void signOut() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+    }
 }
