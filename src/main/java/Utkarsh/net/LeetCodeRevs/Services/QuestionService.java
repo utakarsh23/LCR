@@ -33,4 +33,8 @@ public class QuestionService {
                 questions.setQuestionName(nameOfQues);
             return questionRepository.save(questions);
     }
+
+    public Questions getRandomQuestion() {
+        return questionRepository.findRandomQuestion().orElse(null);
+    }
 }
