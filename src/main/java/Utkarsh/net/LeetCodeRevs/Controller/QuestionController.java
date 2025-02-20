@@ -86,11 +86,11 @@ public class QuestionController {
     @PostMapping("/postSolution")
     public ResponseEntity<?> postDailySolution(@RequestBody String input) {
         int text = geminiService.askGemini(input).indexOf("text");
-        CharSequence charSequence = geminiService.askGemini(input).subSequence(text + 7, text + 15); //hard code lol
+        CharSequence charSequence = geminiService.askGemini(input).subSequence(text + 7, text + 16); //hard code lol
         return new ResponseEntity<>(charSequence,HttpStatus.OK);
     }
 
-@Scheduled(cron = "00 49 21 * * ?")
+@Scheduled(cron = "30 53 15 * * ?")
 public void assignRandomQuestionToUsers() {
     List<User> users = userRepository.findAll();
 
@@ -100,7 +100,7 @@ public void assignRandomQuestionToUsers() {
         if (userQuestions != null && !userQuestions.isEmpty()) {
             Questions randomQuestion = getRandomQuestion(userQuestions);
             if (randomQuestion != null) {
-                user.setDailyQuestion(randomQuestion.getQuestionData().getTitle());
+                user.setDailyQuestion(randomQuestion.getQuestionData() + "");
                 userRepository.save(user);
                 System.out.println("Assigned '" + randomQuestion.getQuestionData().getTitle() +
                         "' to user: " + user.getEmail());
