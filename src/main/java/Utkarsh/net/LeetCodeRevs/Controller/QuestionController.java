@@ -90,28 +90,28 @@ public class QuestionController {
         return new ResponseEntity<>(charSequence,HttpStatus.OK);
     }
 
-@Scheduled(cron = "30 53 15 * * ?")
-public void assignRandomQuestionToUsers() {
-    List<User> users = userRepository.findAll();
+    @Scheduled(cron = "30 53 15 * * ?")
+    public void assignRandomQuestionToUsers() {
+        List<User> users = userRepository.findAll();
 
-    for (User user : users) {
-        List<Questions> userQuestions = user.getQuestions(); // Get only this user's questions
+        for (User user : users) {
+            List<Questions> userQuestions = user.getQuestions(); // Get only this user's questions
 
-        if (userQuestions != null && !userQuestions.isEmpty()) {
-            Questions randomQuestion = getRandomQuestion(userQuestions);
-            if (randomQuestion != null) {
-                user.setDailyQuestion(randomQuestion.getQuestionData() + "");
-                userRepository.save(user);
-                System.out.println("Assigned '" + randomQuestion.getQuestionData().getTitle() +
-                        "' to user: " + user.getEmail());
+            if (userQuestions != null && !userQuestions.isEmpty()) {
+                Questions randomQuestion = getRandomQuestion(userQuestions);
+                if (randomQuestion != null) {
+                    user.setDailyQuestion(randomQuestion.getQuestionData() + "");
+                    userRepository.save(user);
+                    System.out.println("Assigned '" + randomQuestion.getQuestionData().getTitle() +
+                            "' to user: " + user.getEmail());
+                } else {
+                    System.out.println("No valid questions found for user: " + user.getEmail());
+                }
             } else {
-                System.out.println("No valid questions found for user: " + user.getEmail());
+                System.out.println("User " + user.getEmail() + " has no questions.");
             }
-        } else {
-            System.out.println("User " + user.getEmail() + " has no questions.");
         }
     }
-}
 
     /**
      * Helper method to get a random question from a given list.
