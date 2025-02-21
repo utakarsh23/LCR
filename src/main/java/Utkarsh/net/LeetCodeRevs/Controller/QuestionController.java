@@ -85,12 +85,26 @@ public class QuestionController {
 
     @PostMapping("/postSolution")
     public ResponseEntity<?> postDailySolution(@RequestBody String input) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findUserByEmail(email);
+        String dailyQuestion = user.getDailyQuestion();
+
+
+
+        if (dailyQuestion == null || dailyQuestion.isEmpty()) {
+            return new ResponseEntity<>("No daily questions assigned!", HttpStatus.BAD_REQUEST);
+        }
+
+        String questionTitle = (String) user.getDailyQuestion().subSequence(9, user.getDailyQuestion().indexOf("Difficulty") - 1);
+        questionRepository.findQuestionsByQuestionName(questionTitle);
+        //
         int text = geminiService.askGemini(input).indexOf("text");
         CharSequence charSequence = geminiService.askGemini(input).subSequence(text + 7, text + 16); //hard code lol
         return new ResponseEntity<>(charSequence,HttpStatus.OK);
     }
 
-    @Scheduled(cron = "30 53 15 * * ?")
+    @Scheduled(cron = "20 53 02 * * ?")
     public void assignRandomQuestionToUsers() {
         List<User> users = userRepository.findAll();
 

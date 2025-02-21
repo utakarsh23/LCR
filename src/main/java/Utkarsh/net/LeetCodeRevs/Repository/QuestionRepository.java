@@ -22,4 +22,8 @@ public interface QuestionRepository extends MongoRepository<Questions, ObjectId>
     List<Questions> findUnsolvedQuestions(List<String> solvedQuestionNames);
 
     List<Questions> findQuestionsByUser(User user);
+
+    List<Questions> searchQuestionsByQuestionName(String questionName);
+
+    List<Questions> findQuestionsByQuestionName(String questionName);
 }
