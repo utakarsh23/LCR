@@ -23,6 +23,17 @@ public class User {
 
     private String dailyQuestion;
 
+    //used only for ref
+    private ObjectId dailyQuesID;
+
+    public ObjectId getDailyQuesID() {
+        return dailyQuesID;
+    }
+
+    public void setDailyQuesID(ObjectId dailyQuesID) {
+        this.dailyQuesID = dailyQuesID;
+    }
+
     public String getDailyQuestion() {
         return dailyQuestion;
     }

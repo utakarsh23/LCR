@@ -26,4 +26,6 @@ public interface QuestionRepository extends MongoRepository<Questions, ObjectId>
     List<Questions> searchQuestionsByQuestionName(String questionName);
 
     List<Questions> findQuestionsByQuestionName(String questionName);
+
+    List<Questions> getQuestionsById(ObjectId id);
 }

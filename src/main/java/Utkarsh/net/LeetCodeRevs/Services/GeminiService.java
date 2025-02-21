@@ -14,7 +14,7 @@ public class GeminiService {
     private static final String API_KEY = dotenv.get("GEMINI_API_KEY");
     private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY;
 
-    public String askGemini(String userInput) {
+    public String askGemini(String userInput, String question, String testCases) {
         try {
             RestTemplate restTemplate = new RestTemplate();
 
@@ -23,10 +23,10 @@ public class GeminiService {
             requestBody.put("contents", new JSONObject[]{
                     new JSONObject().put("parts", new JSONObject[]{
                             new JSONObject().put("text",
-                                    "1. Check if the following code input is logically correct and matches the solution to the question; don`t overanalyze it. Only focus on the logic of the code; ignore formatting, error handling, or any other test cases."+
+                                    "1. Check if the following code input is logically correct and matches the solution to the question from LeetCode;(please get essential data from the question:" + question + "\ndon`t overanalyze it. Only focus on the logic of the code; ignore formatting, error handling, and these cases."+ testCases +
                                     "2. If the code is logically incorrect, return 'Incorrect Solution' and do not provide any explanation; don`t return the corrected code or anyhting else."+
                                     "3. If the code is logically correct, return ' Correct Solution' and do nothing more"+
-                                    "User Input: " + userInput
+                                    "User Input for solution : " + userInput
                             )
                     })
             });
