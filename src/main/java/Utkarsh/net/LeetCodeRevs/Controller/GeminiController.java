@@ -48,5 +48,4 @@ public class GeminiController {
 
         return new ResponseEntity<>(geminiService.askGemini(input, content, testCases), HttpStatus.OK);
     }
-
 }
