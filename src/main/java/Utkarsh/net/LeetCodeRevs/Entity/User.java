@@ -23,7 +23,7 @@ public class User {
 
     private String dailyQuestion;
 
-    //used only for ref
+    /// used only for ref so we could get Question from user profile for ans check for the solution with gemini
     private ObjectId dailyQuesID;
 
     public ObjectId getDailyQuesID() {

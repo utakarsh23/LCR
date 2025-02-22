@@ -1,8 +1,6 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
-import Utkarsh.net.LeetCodeRevs.DTO.QuestionRequestDTO;
 import Utkarsh.net.LeetCodeRevs.Entity.Questions;
-import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.QuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +11,6 @@ public class QuestionService {
 
     @Autowired
     private QuestionRepository questionRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
 
     public Questions postSolution(Questions questions) {

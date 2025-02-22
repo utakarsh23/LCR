@@ -31,21 +31,21 @@ public class GeminiController {
     @Autowired
     private QuestionRepository questionRepository;
 
+
     @PostMapping("/ask")
-    public ResponseEntity<?> askGemini(@RequestBody String input) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public ResponseEntity<?> askGemini(@RequestBody String input) { //to just test the GeminiAPI
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); //to auth
         String email = authentication.getName();
         User user = userRepository.findUserByEmail(email);
-        ObjectId dailyQuestionId = user.getDailyQuesID(); //questionId
+        ObjectId dailyQuestionId = user.getDailyQuesID(); //getting the questionId
 
-//        System.out.println(dailyQuestionId);
         if (dailyQuestionId == null) {
             return new ResponseEntity<>("No daily questions assigned!", HttpStatus.BAD_REQUEST);
         }
-        List<Questions> questionsById = questionRepository.getQuestionsById(dailyQuestionId);
-        String content = questionsById.get(0).getQuestionData().getContent();
-        String testCases = questionsById.get(0).getQuestionData().getExampleTestcases();
+        List<Questions> questionsById = questionRepository.getQuestionsById(dailyQuestionId); //finding the question
+        String content = questionsById.get(0).getQuestionData().getContent(); //content(the question statement)
+        String testCases = questionsById.get(0).getQuestionData().getExampleTestcases(); //getting the testCases
 
-        return new ResponseEntity<>(geminiService.askGemini(input, content, testCases), HttpStatus.OK);
+        return new ResponseEntity<>(geminiService.askGemini(input, content, testCases), HttpStatus.OK); //returning the output
     }
 }

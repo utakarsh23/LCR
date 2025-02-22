@@ -12,20 +12,10 @@ import java.util.Optional;
 
 public interface QuestionRepository extends MongoRepository<Questions, ObjectId> {
 
-    Questions findByQuestionLink(String questionLink);
-
     @Aggregation(pipeline = { "{ $sample: { size: 1 } }" })
     Optional<Questions> findRandomQuestion();
 
-
-    @Query("{ 'questionName': { $nin: ?0 } }")
-    List<Questions> findUnsolvedQuestions(List<String> solvedQuestionNames);
-
     List<Questions> findQuestionsByUser(User user);
-
-    List<Questions> searchQuestionsByQuestionName(String questionName);
-
-    List<Questions> findQuestionsByQuestionName(String questionName);
 
     List<Questions> getQuestionsById(ObjectId id);
 }

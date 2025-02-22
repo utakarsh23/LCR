@@ -43,34 +43,39 @@ public class QuestionController {
     @Autowired
     private GeminiService geminiService;
 
+
+
     @PostMapping("/postQues") //this is for the first time solution submission until it gets automated
     public ResponseEntity<Questions> postSolution(@RequestBody Questions questionRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        User user = userRepository.findUserByEmail(email);
+        User userByEmail = userRepository.findUserByEmail(email); //finding the user
+
+        //returning bad req if the user does not send the solution or question link
             if(questionRequest.getQuestionLink() == null || questionRequest.getSolutions() == null || questionRequest.getSolutions().isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
 
+        /// getting question Link from the user and fetching data from the question by questionLink and the setting up the question.
         LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(questionRequest.getQuestionLink());
-        questionRequest.setQuestionData(leetCodeProblem);
-            questionRequest.setQuestionLink(questionRequest.getQuestionLink());
-        questionRequest.setUser(user);
-//            questionRequest.setSolutions(questionRequest.getSolutions());
-        Questions questions = questionService.postSolution(questionRequest);
+        questionRequest.setQuestionData(leetCodeProblem); //setting question
+        questionRequest.setQuestionLink(questionRequest.getQuestionLink()); //and link too
+        questionRequest.setUser(userByEmail); //setting which user posted the question
+        Questions questions = questionService.postSolution(questionRequest); //saving the solution
 
-        User userByEmail = userRepository.findUserByEmail(email);
-        if(userByEmail != null) {
+        if(userByEmail != null) { //setting question
             if(userByEmail.getQuestions() == null) {
                 userByEmail.setQuestions(new ArrayList<>());
             }
             userByEmail.getQuestions().add(questionRequest);
             userRepository.save(userByEmail);
         }
-        return new ResponseEntity<>(questions, HttpStatus.OK);
+        return new ResponseEntity<>(questions, HttpStatus.OK); //returning
     }
 
-    @GetMapping("/random") //simple to get a random question when fetched(scheduling will be handled later)
+
+
+    @GetMapping("/random") //sample to get a random question when fetched(scheduling will be handled later)
     public Questions getRandomQuestion() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -85,28 +90,28 @@ public class QuestionController {
         return questions.get(random.nextInt(questions.size()));
     }
 
+
+
     @PostMapping("/postSolution")
     public ResponseEntity<?> postDailySolution(@RequestBody String input) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userRepository.findUserByEmail(email);
-        ObjectId dailyQuestionId = user.getDailyQuesID(); //questionId
+        ObjectId dailyQuestionId = user.getDailyQuesID(); //questionId to get the user daily question to check the solution posted
 
-//        System.out.println(dailyQuestionId);
         if (dailyQuestionId == null) {
             return new ResponseEntity<>("No daily questions assigned!", HttpStatus.BAD_REQUEST);
         }
-        List<Questions> questionsById = questionRepository.getQuestionsById(dailyQuestionId);
-        String content = questionsById.get(0).getQuestionData().getContent();
-        String testCases = questionsById.get(0).getQuestionData().getExampleTestcases();
+        List<Questions> questionsById = questionRepository.getQuestionsById(dailyQuestionId); // getting the question By ID
+        String content = questionsById.get(0).getQuestionData().getContent(); //content
+        String testCases = questionsById.get(0).getQuestionData().getExampleTestcases(); //testCases
 
-//        String questionTitle = (String) user.getDailyQuestion().subSequence(9, user.getDailyQuestion().indexOf("Difficulty") - 1);
-//        questionRepository.findQuestionsByQuestionName(questionTitle);
-        //
         int text = geminiService.askGemini(input, content, testCases).indexOf("text");
         CharSequence charSequence = geminiService.askGemini(input, content, testCases).subSequence(text + 7, text + 16); //hard code lol
         return new ResponseEntity<>(charSequence,HttpStatus.OK);
     }
+
+
 
     @Scheduled(cron = "030 04 02 * * ?")
     public void assignRandomQuestionToUsers() {
@@ -132,6 +137,7 @@ public class QuestionController {
             }
         }
     }
+
 
     /**
      * Helper method to get a random question from a given list.

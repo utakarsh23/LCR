@@ -20,16 +20,16 @@ public class PublicController {
     private UserService userService;
 
     @GetMapping
-    public String health() {
+    public String health() { //healthCheck API
         return "It's working";
     }
 
     @PostMapping("/signup")
-    private ResponseEntity<?> createNewUsers(@RequestBody User user) {
+    private ResponseEntity<?> createNewUsers(@RequestBody User user) { //to create the new user
         if(userRepository.existsByEmail(user.getEmail())) {
             return new ResponseEntity<>("User already exists", HttpStatus.I_AM_A_TEAPOT);
         }
-        userService.createUser(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        userService.createUser(user); //creating the user if no email exists for such
+        return new ResponseEntity<>(user, HttpStatus.CREATED); //returning the user
     }
 }

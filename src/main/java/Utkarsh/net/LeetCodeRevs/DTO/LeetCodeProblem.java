@@ -9,7 +9,7 @@ public class LeetCodeProblem {
     private String difficulty;
     private String exampleTestcases;
     private List<String> topicTags;
-    private String url;  // Added field for the full URL
+    private String url;
 
     // Getters and Setters
     public String getQuestionId() { return questionId; }
@@ -30,8 +30,8 @@ public class LeetCodeProblem {
     public List<String> getTopicTags() { return topicTags; }
     public void setTopicTags(List<String> topicTags) { this.topicTags = topicTags; }
 
-    public String getUrl() { return url; }  // Getter for URL
-    public void setUrl(String url) { this.url = url; }  // Setter for URL
+    public String getUrl() { return url; }
+    public void setUrl(String url) { this.url = url; }
 
     @Override
     public String toString() {

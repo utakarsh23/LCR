@@ -40,7 +40,6 @@ public class Questions {
         this.user = user;
     }
 
-
     public ObjectId getId() {
         return id;
     }

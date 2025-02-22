@@ -17,17 +17,13 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //to hash the password
 
 
     public void createUser(User user) {
         user.setEmail(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-    }
-
-    public Optional<User> findUserById(ObjectId objectId) {
-        return userRepository.findById(objectId);
     }
 
     public User findUserByEmail(String email) {

@@ -21,15 +21,14 @@ public class UserController {
     private UserRepository userRepository;
 
     @GetMapping("getProfile")
-    private ResponseEntity<User> findUserById() {
+    private ResponseEntity<User> findUserByEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return new ResponseEntity<>(userService.findUserByEmail(email), HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteUser")
-    private ResponseEntity<Boolean> deleteUserById() {
-//        System.out.println("hehe");
+    private ResponseEntity<Boolean> deleteUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userRepository.findUserByEmail(email);
@@ -42,7 +41,6 @@ public class UserController {
 
     @PutMapping("/updateUser")
     private ResponseEntity<?> updateUser(@RequestBody User user) {
-//        System.out.println("hehe");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User userInDb = userRepository.findUserByEmail(email);
@@ -56,6 +54,6 @@ public class UserController {
     public void signOut() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-
+        //wait
     }
 }

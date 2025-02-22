@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+//to fetch the questionData using GraphQL Query
 @Service
 public class LeetCodeService {
 
