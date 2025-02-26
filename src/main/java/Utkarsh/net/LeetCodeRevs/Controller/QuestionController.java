@@ -92,7 +92,7 @@ public class QuestionController {
 
 
 
-    @PostMapping("/postSolution")
+    @PostMapping("/postSolution") //the daily ques
     public ResponseEntity<?> postDailySolution(@RequestBody String input) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
