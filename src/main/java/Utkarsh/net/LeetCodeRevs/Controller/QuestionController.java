@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+
 @RestController
 @RequestMapping("/questions")
 public class QuestionController {
@@ -47,6 +48,7 @@ public class QuestionController {
 
     @PostMapping("/postQues") //this is for the first time solution submission until it gets automated
     public ResponseEntity<Questions> postSolution(@RequestBody Questions questionRequest) {
+        System.out.println("huhhhhhhdgffwfdfefdfgfwfgvhgfrgjg");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User userByEmail = userRepository.findUserByEmail(email); //finding the user
