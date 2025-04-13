@@ -21,10 +21,21 @@ public class User {
     @DBRef
     private List<Questions> questions;
 
+    private LeetCodeSubmissions leetCodeSubmissions;
+
+
     private String dailyQuestion;
 
     /// used only for ref so we could get Question from user profile for ans check for the solution with gemini
     private ObjectId dailyQuesID;
+
+    public LeetCodeSubmissions getLeetCodeSubmissions() {
+        return leetCodeSubmissions;
+    }
+
+    public void setLeetCodeSubmissions(LeetCodeSubmissions leetCodeSubmissions) {
+        this.leetCodeSubmissions = leetCodeSubmissions;
+    }
 
     public ObjectId getDailyQuesID() {
         return dailyQuesID;
