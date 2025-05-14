@@ -1,6 +1,8 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
+import Utkarsh.net.LeetCodeRevs.Entity.LeetCodeResponse;
+import Utkarsh.net.LeetCodeRevs.Entity.Submission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 //to fetch the questionData using GraphQL Query
 @Service
@@ -86,5 +89,18 @@ public class LeetCodeService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse LeetCode response", e);
         }
+    }
+
+
+    //to returning the titles and fetching from the API
+    public List<String> getQuestionTitles(String username) {
+        String url = "https://alfa-leetcode-api.onrender.com/" + username + "/acSubmission?limit=20";
+
+        LeetCodeResponse response = restTemplate.getForObject(url, LeetCodeResponse.class);
+
+        return response.getSubmission()
+                .stream()
+                .map(Submission::getTitle)
+                .collect(Collectors.toList());
     }
 }

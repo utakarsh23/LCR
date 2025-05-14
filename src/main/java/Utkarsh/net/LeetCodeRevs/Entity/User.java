@@ -1,5 +1,7 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mongodb.lang.Nullable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
@@ -18,6 +20,19 @@ public class User {
     private String email;
     private String password;
 
+    @Nullable
+    private String leetCodeUserName;
+
+    private List<String> submissions;
+
+    public List<String> getSubmissions() {
+        return submissions;
+    }
+
+    public void setSubmissions(List<String> submissions) {
+        this.submissions = submissions;
+    }
+
     @DBRef
     private List<Questions> questions;
 
@@ -28,6 +43,14 @@ public class User {
 
     /// used only for ref so we could get Question from user profile for ans check for the solution with gemini
     private ObjectId dailyQuesID;
+
+    public void setLeetCodeUserName(String leetCodeUserName) {
+        this.leetCodeUserName = leetCodeUserName;
+    }
+
+    public String getLeetCodeUserName() {
+        return leetCodeUserName;
+    }
 
     public LeetCodeSubmissions getLeetCodeSubmissions() {
         return leetCodeSubmissions;

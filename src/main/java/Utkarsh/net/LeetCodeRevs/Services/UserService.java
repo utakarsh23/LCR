@@ -23,6 +23,7 @@ public class UserService {
     public void createUser(User user) {
         user.setEmail(user.getEmail());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setLeetCodeUserName(user.getLeetCodeUserName());
         userRepository.save(user);
     }
 
