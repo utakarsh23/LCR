@@ -16,7 +16,8 @@ public class CacheConfig {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager("leetcodeTitles", "leetcodeLinks");
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(6, TimeUnit.HOURS)
-                .maximumSize(500));
+                .maximumSize(500)
+                .recordStats());
         return cacheManager;
     }
 }

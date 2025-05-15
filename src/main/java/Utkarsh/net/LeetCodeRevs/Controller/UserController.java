@@ -61,9 +61,7 @@ public class UserController {
                 }
             }
         }
-
-
-        System.out.println("lmaooosssss");
+        System.out.println(submissions.size() + " Size Of DB Questions ");
 
         user.setSubmissions(submissions);
         userRepository.save(user);
