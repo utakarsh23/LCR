@@ -1,5 +1,6 @@
-package Utkarsh.net.LeetCodeRevs.Entity;
+package Utkarsh.net.LeetCodeRevs.DTO;
 
+import Utkarsh.net.LeetCodeRevs.Entity.Submission;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +11,15 @@ import java.util.List;
 public class LeetCodeResponse {
     private int count;
     private List<Submission> submission;
+    private String link;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
 
     // Getters and setters
     public List<Submission> getSubmission() {

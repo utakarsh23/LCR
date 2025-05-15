@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -23,13 +24,13 @@ public class User {
     @Nullable
     private String leetCodeUserName;
 
-    private List<String> submissions;
+    private Map<String, String> submissions;
 
-    public List<String> getSubmissions() {
+    public Map<String, String> getSubmissions() {
         return submissions;
     }
 
-    public void setSubmissions(List<String> submissions) {
+    public void setSubmissions(Map<String, String> submissions) {
         this.submissions = submissions;
     }
 

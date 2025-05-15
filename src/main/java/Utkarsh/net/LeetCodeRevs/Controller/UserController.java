@@ -1,5 +1,7 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import Utkarsh.net.LeetCodeRevs.Entity.Submission;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
@@ -12,7 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -27,21 +29,45 @@ public class UserController {
     private LeetCodeService leetCodeService;
 
     @GetMapping("getProfile")
-    private ResponseEntity<User> findUserByEmail() {
+    private ResponseEntity<Object> findUserByEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         User user = userRepository.findUserByEmail(email);
-        List<String> questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName());
-        List<String> submissions = userService.findUserByEmail(email).getSubmissions();
-        for (int i = 0; i < questionTitles.size(); i++) {
-            if(!submissions.contains(questionTitles.get(i)))
-                submissions.add(0, questionTitles.get(i));
-            else
-                break;
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        Map<String, String> submissions = user.getSubmissions();
+        if (submissions == null) {
+            submissions = new HashMap<>();
+        }
+
+        Set<String> submissionSet = new HashSet<>(submissions.keySet());
+        List<String> questionTitles;
+        try {
+            questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to fetch question titles from LeetCode API : " + e);
+        }
+
+        for (String title : questionTitles) {
+            if (!submissionSet.contains(title)) {
+                try {
+                    String linkOfQuestion = leetCodeService.fetchLeetcodeLink(title);
+                    submissions.put(title, linkOfQuestion);
+                } catch (Exception e) {
+                    return ResponseEntity.badRequest().body("Failed to fetch link for title: {}" + title + e);
+                }
+            }
+        }
+
+
+        System.out.println("lmaooosssss");
+
         user.setSubmissions(submissions);
         userRepository.save(user);
-        return new ResponseEntity<>(userService.findUserByEmail(email), HttpStatus.OK);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/deleteUser")

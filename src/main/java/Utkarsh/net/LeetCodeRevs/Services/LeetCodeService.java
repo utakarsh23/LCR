@@ -1,11 +1,12 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
-import Utkarsh.net.LeetCodeRevs.Entity.LeetCodeResponse;
+import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeResponse;
 import Utkarsh.net.LeetCodeRevs.Entity.Submission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -93,14 +94,29 @@ public class LeetCodeService {
 
 
     //to returning the titles and fetching from the API
+    @Cacheable(value = "leetcodeTitles", key = "#username")
     public List<String> getQuestionTitles(String username) {
         String url = "https://alfa-leetcode-api.onrender.com/" + username + "/acSubmission?limit=20";
 
         LeetCodeResponse response = restTemplate.getForObject(url, LeetCodeResponse.class);
 
+        if (response == null || response.getSubmission() == null) {
+            return Collections.emptyList();
+        }
+
         return response.getSubmission()
                 .stream()
                 .map(Submission::getTitle)
                 .collect(Collectors.toList());
+    }
+
+    //to returning the link and fetching from the API
+    @Cacheable(value = "leetcodeLinks", key = "#titleSlug")
+    public String fetchLeetcodeLink(String titleSlug) {
+        titleSlug = titleSlug.trim().toLowerCase().replaceAll("\\s+", "-");
+        String url = "https://alfa-leetcode-api.onrender.com/select?titleSlug=" + titleSlug;
+        System.out.println(url + " " + "hahahhahhaha");
+        LeetCodeResponse response = restTemplate.getForObject(url, LeetCodeResponse.class);
+        return response != null ? response.getLink() : null; // Just the link, as requested
     }
 }

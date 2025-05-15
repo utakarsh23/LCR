@@ -3,7 +3,6 @@ package Utkarsh.net.LeetCodeRevs.Entity;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 
 @Data
 @Document(collection = "QuestionList")
