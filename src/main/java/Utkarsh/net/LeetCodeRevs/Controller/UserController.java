@@ -1,8 +1,5 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import Utkarsh.net.LeetCodeRevs.Entity.Submission;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
