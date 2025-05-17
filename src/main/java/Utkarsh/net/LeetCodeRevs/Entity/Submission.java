@@ -1,11 +1,9 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 
 @Data
-@Document(collection = "QuestionList")
 public class Submission {
 
     private String title;

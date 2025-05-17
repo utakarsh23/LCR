@@ -19,26 +19,10 @@ public class Questions {
 
     @Id
     private ObjectId id;
-    private String questionLink;
-    private String questionName; // Auto-generated name
-    private LeetCodeProblem questionData;
-    private List<String> solutions; // Store multiple solutions
+    private String title;
+    private String link;
+    private List<String> topicTags;
 
-    @DBRef
-    @JsonIgnore
-    private User user;
-
-
-    @CreatedDate
-    private LocalDateTime createdDate;
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public ObjectId getId() {
         return id;
@@ -48,49 +32,27 @@ public class Questions {
         this.id = id;
     }
 
-    public String getQuestionLink() {
-        return questionLink;
+    public String getTitle() {
+        return title;
     }
 
-    public void setQuestionLink(String questionLink) {
-        this.questionLink = questionLink;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getQuestionName() {
-        return questionName;
+    public String getLink() {
+        return link;
     }
 
-    public void setQuestionName(String questionName) {
-        this.questionName = questionName;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public List<String> getSolutions() {
-        return solutions;
+    public List<String> getTopicTags() {
+        return topicTags;
     }
 
-    public void setSolutions(List<String> solutions) {
-        this.solutions = solutions;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LeetCodeProblem getQuestionData() {
-        return questionData;
-    }
-
-    public void setQuestionData(LeetCodeProblem questionData) {
-        this.questionData = questionData;
-    }
-
-
-    @Override
-    public String toString() {
-        return "questionData=" + questionData;
+    public void setTopicTags(List<String> topicTags) {
+        this.topicTags = topicTags;
     }
 }

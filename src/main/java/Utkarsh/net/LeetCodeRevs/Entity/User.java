@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.lang.Nullable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.bson.types.ObjectId;
+import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,70 +22,8 @@ public class User {
     private ObjectId id;
     private String email;
     private String password;
-
-    @Nullable
     private String leetCodeUserName;
-
-    private Map<String, String> submissions;
-
-    public Map<String, String> getSubmissions() {
-        return submissions;
-    }
-
-    public void setSubmissions(Map<String, String> submissions) {
-        this.submissions = submissions;
-    }
-
-    @DBRef
-    private List<Questions> questions;
-
-    private LeetCodeSubmissions leetCodeSubmissions;
-
-
-    private String dailyQuestion;
-
-    /// used only for ref so we could get Question from user profile for ans check for the solution with gemini
-    private ObjectId dailyQuesID;
-
-    public void setLeetCodeUserName(String leetCodeUserName) {
-        this.leetCodeUserName = leetCodeUserName;
-    }
-
-    public String getLeetCodeUserName() {
-        return leetCodeUserName;
-    }
-
-    public LeetCodeSubmissions getLeetCodeSubmissions() {
-        return leetCodeSubmissions;
-    }
-
-    public void setLeetCodeSubmissions(LeetCodeSubmissions leetCodeSubmissions) {
-        this.leetCodeSubmissions = leetCodeSubmissions;
-    }
-
-    public ObjectId getDailyQuesID() {
-        return dailyQuesID;
-    }
-
-    public void setDailyQuesID(ObjectId dailyQuesID) {
-        this.dailyQuesID = dailyQuesID;
-    }
-
-    public String getDailyQuestion() {
-        return dailyQuestion;
-    }
-
-    public void setDailyQuestion(String dailyQuestion) {
-        this.dailyQuestion = dailyQuestion;
-    }
-
-    public List<Questions> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Questions> questions) {
-        this.questions = questions;
-    }
+    private List<Questions> submissions;
 
     public ObjectId getId() {
         return id;
@@ -107,5 +47,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getLeetCodeUserName() {
+        return leetCodeUserName;
+    }
+
+    public void setLeetCodeUserName(String leetCodeUserName) {
+        this.leetCodeUserName = leetCodeUserName;
+    }
+
+    public List<Questions> getSubmissions() {
+        return submissions;
+    }
+
+    public void setSubmissions(List<Questions> submissions) {
+        this.submissions = submissions;
     }
 }
