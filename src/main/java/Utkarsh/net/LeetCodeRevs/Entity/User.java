@@ -17,10 +17,19 @@ public class User {
     private String email;
     private String password;
     private String leetCodeUserName;
+    private String dailyAssignedQuestionLink;
 
     @Field("userQuestions")
     private Map<String, UserQuestionData> userQuestions;
 
+
+    public String getDailyAssignedQuestionLink() {
+        return dailyAssignedQuestionLink;
+    }
+
+    public void setDailyAssignedQuestionLink(String dailyAssignedQuestionLink) {
+        this.dailyAssignedQuestionLink = dailyAssignedQuestionLink;
+    }
 
     public ObjectId getId() {
         return id;

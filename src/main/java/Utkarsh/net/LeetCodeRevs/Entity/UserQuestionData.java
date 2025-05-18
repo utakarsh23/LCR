@@ -2,6 +2,7 @@ package Utkarsh.net.LeetCodeRevs.Entity;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -11,6 +12,24 @@ public class UserQuestionData {
     private List<String> tags;
     private double weight;
     private String lastUpdatedTimestamp;
+    private boolean coolDown;
+    private LocalDate lastAssigned;
+
+    public LocalDate getLastAssigned() {
+        return lastAssigned;
+    }
+
+    public void setLastAssigned(LocalDate lastAssigned) {
+        this.lastAssigned = lastAssigned;
+    }
+
+    public boolean isCoolDown() {
+        return coolDown;
+    }
+
+    public void setCoolDown(boolean coolDown) {
+        this.coolDown = coolDown;
+    }
 
     public String getLastUpdatedTimestamp() {
         return lastUpdatedTimestamp;
