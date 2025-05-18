@@ -32,6 +32,7 @@ public class UserController {
     private DailyUpdateQuestionsAndWeightService dailyUpdateQuestionsAndWeightService;
 
 
+    //prolly the worst code ever
     @GetMapping("getProfile")
     public ResponseEntity<Object> findUserByEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

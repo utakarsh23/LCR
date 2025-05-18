@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Document(collection = "user")
@@ -18,10 +19,28 @@ public class User {
     private String password;
     private String leetCodeUserName;
     private String dailyAssignedQuestionLink;
+    private String dailyAssignedTopicQuestionLink;
+    private Map<String, Double> topicWeights = new HashMap<>();
 
     @Field("userQuestions")
     private Map<String, UserQuestionData> userQuestions;
 
+
+    public String getDailyAssignedTopicQuestionLink() {
+        return dailyAssignedTopicQuestionLink;
+    }
+
+    public void setDailyAssignedTopicQuestionLink(String dailyAssignedTopicQuestionLink) {
+        dailyAssignedTopicQuestionLink = dailyAssignedTopicQuestionLink;
+    }
+
+    public Map<String, Double> getTopicWeights() {
+        return topicWeights;
+    }
+
+    public void setTopicWeights(Map<String, Double> topicWeights) {
+        this.topicWeights = topicWeights;
+    }
 
     public String getDailyAssignedQuestionLink() {
         return dailyAssignedQuestionLink;
@@ -70,4 +89,5 @@ public class User {
     public void setUserQuestions(Map<String, UserQuestionData> userQuestions) {
         this.userQuestions = userQuestions;
     }
+
 }

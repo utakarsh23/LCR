@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ public class DailyUpdateQuestionsAndWeightService {
 
     public void updateWeightsForSubmissions(User user, Map<String, UserQuestionData> userQuestions) {
         List<Map<String, Object>> submissions = leetCodeService.getRecentSubmissionTitleTimestampStatus(user.getLeetCodeUserName());
+        Map<String, Double> topicWeights = user.getTopicWeights();
 //        List<Map<String, Object>> submissions = List.of(
 //                Map.of("title", "Valid Parentheses", "statusDisplay", "Accepted", "timestamp", "1705842396"),
 //                Map.of("title", "Combination Sum", "statusDisplay", "Wrong Answer", "timestamp", "1705842331"),
@@ -51,6 +53,9 @@ public class DailyUpdateQuestionsAndWeightService {
         if (userQuestions == null || userQuestions.isEmpty()) {
             return;
         }
+        if (topicWeights == null) {
+            topicWeights = new HashMap<>();
+        }
 
         System.out.println("huh");
         for (Map<String, Object> submission : submissions) {
@@ -73,18 +78,28 @@ public class DailyUpdateQuestionsAndWeightService {
                 case "Wrong Answer", "Time Limit Exceeded" -> {
                     currentWeight = Math.max(0.1, currentWeight - 0.1);
                     qData.setWeight(currentWeight);
-                    qData.setLastUpdatedTimestamp(timeStamp);
                 }
                 case "Accepted" -> {
                     currentWeight = Math.min(2.0, currentWeight + 0.05);
                     qData.setWeight(currentWeight);
-                    qData.setLastUpdatedTimestamp(timeStamp);
+                }
+            }
+            qData.setLastUpdatedTimestamp(timeStamp);
+            for (String tag : qData.getTags()) {
+                double topicWeight = topicWeights.getOrDefault(tag, 1.0);
+
+                switch (status) {
+                    case "Wrong Answer", "Time Limit Exceeded" ->
+                            topicWeights.put(tag, Math.max(0.1, topicWeight - 0.05));
+                    case "Accepted" ->
+                            topicWeights.put(tag, Math.min(2.0, topicWeight + 0.02));
                 }
             }
         }
+        user.setTopicWeights(topicWeights);
         user.setUserQuestions(userQuestions);
+        userRepository.save(user);
     }
-
 
     //for scheduling twice a day
     public void refreshUserQuestionsAndWeights(User user) {
@@ -102,7 +117,7 @@ public class DailyUpdateQuestionsAndWeightService {
                 try {
                     tags = leetCodeService.fetchProblemData(link).getTopicTags();
                 } catch (Exception e) {
-                    // handle or log error fetching tags
+                    System.out.println("Error With assigning : " + e);
                 }
                 UserQuestionData qData = new UserQuestionData();
                 qData.setTitle(title);
