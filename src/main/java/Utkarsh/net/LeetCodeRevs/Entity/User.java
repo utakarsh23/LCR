@@ -1,29 +1,26 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mongodb.lang.Nullable;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.bson.types.ObjectId;
-import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.List;
 import java.util.Map;
 
-@Data
-@NoArgsConstructor
 @Document(collection = "user")
+@Data
 public class User {
     @Id
     private ObjectId id;
+
     private String email;
     private String password;
     private String leetCodeUserName;
-    private List<Questions> submissions;
+
+    @Field("userQuestions")
+    private Map<String, UserQuestionData> userQuestions;
+
 
     public ObjectId getId() {
         return id;
@@ -57,11 +54,11 @@ public class User {
         this.leetCodeUserName = leetCodeUserName;
     }
 
-    public List<Questions> getSubmissions() {
-        return submissions;
+    public Map<String, UserQuestionData> getUserQuestions() {
+        return userQuestions;
     }
 
-    public void setSubmissions(List<Questions> submissions) {
-        this.submissions = submissions;
+    public void setUserQuestions(Map<String, UserQuestionData> userQuestions) {
+        this.userQuestions = userQuestions;
     }
 }

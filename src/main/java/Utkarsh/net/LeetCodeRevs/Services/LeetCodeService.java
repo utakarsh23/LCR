@@ -3,6 +3,7 @@ package Utkarsh.net.LeetCodeRevs.Services;
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeResponse;
 import Utkarsh.net.LeetCodeRevs.Entity.Submission;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
@@ -98,9 +99,9 @@ public class LeetCodeService {
 
 
     //to returning the titles and fetching from the API
-    @CachePut(value = "leetcodeTitles", key = "#username")
+    @Cacheable(value = "leetcodeTitles", key = "#username")
     public List<String> getQuestionTitles(String username) {
-        String url = "https://alfa-leetcode-api.onrender.com/" + username + "/acSubmission?limit=8";
+        String url = "https://alfa-leetcode-api.onrender.com/" + username + "/acSubmission?limit=20";
 
         LeetCodeResponse response = restTemplate.getForObject(url, LeetCodeResponse.class);
 
@@ -117,7 +118,7 @@ public class LeetCodeService {
     }
 
     //to returning the link and fetching from the API
-    @CachePut(value = "leetcodeLinks", key = "#titleSlug")
+    @Cacheable(value = "leetcodeLinks", key = "#titleSlug")
     public String fetchLeetcodeLink(String titleSlug) {
         titleSlug = titleSlug.trim().toLowerCase().replaceAll("\\s+", "-");
         String url = "https://alfa-leetcode-api.onrender.com/select?titleSlug=" + titleSlug;
@@ -128,4 +129,31 @@ public class LeetCodeService {
         return response != null ? response.getLink() : null; // Just the link, as requested
     }
 
+    @Cacheable(value = "leetcodeTotalSubs", key = "#username")
+    public List<Map<String, Object>> getRecentSubmissionTitleTimestampStatus(String username) {
+        String url = "https://alfa-leetcode-api.onrender.com/" + username + "/submission";
+
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try {
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode submissions = root.path("submission");
+
+            if (submissions.isArray()) {
+                for (JsonNode node : submissions) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("title", node.path("title").asText());
+                    map.put("timestamp", node.path("timestamp").asText());
+                    map.put("statusDisplay", node.path("statusDisplay").asText());
+                    result.add(map);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Failed");
+            throw new RuntimeException("Failed to parse submissions", e);
+        }
+
+        return result;
+    }
 }

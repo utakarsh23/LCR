@@ -13,6 +13,14 @@ public class LeetCodeResponse {
     private List<Submission> submission;
     private String link;
 
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     public String getLink() {
         return link;
     }

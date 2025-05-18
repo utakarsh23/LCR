@@ -11,7 +11,6 @@ public class LeetCodeProblem {
     private List<String> topicTags;
     private String url;
 
-    // Getters and Setters
     public String getQuestionId() { return questionId; }
     public void setQuestionId(String questionId) { this.questionId = questionId; }
 

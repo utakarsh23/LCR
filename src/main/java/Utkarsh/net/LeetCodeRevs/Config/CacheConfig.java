@@ -6,6 +6,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -13,9 +14,9 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("leetcodeTitles", "leetcodeLinks");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs");
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .expireAfterWrite(6, TimeUnit.HOURS)
+                .expireAfterWrite(Duration.ofHours(8))
                 .maximumSize(500)
                 .recordStats());
         return cacheManager;

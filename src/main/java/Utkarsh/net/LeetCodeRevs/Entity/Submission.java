@@ -8,7 +8,6 @@ public class Submission {
 
     private String title;
 
-    // Getter and setter
     public String getTitle() {
         return title;
     }
