@@ -1,5 +1,6 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
+import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static Utkarsh.net.LeetCodeRevs.Controller.UserController.extractOutputsFromContent;
+import static Utkarsh.net.LeetCodeRevs.Controller.UserController.parseStringTestCases;
 
 @Service
 public class DailyUpdateQuestionsAndWeightService {
@@ -50,6 +54,7 @@ public class DailyUpdateQuestionsAndWeightService {
 //                Map.of("title", "Kth Largest Element in an Array", "statusDisplay", "Wrong Answer", "timestamp", "1705840400"),
 //                Map.of("title", "K Closest Points to Origin", "statusDisplay", "Accepted", "timestamp", "1705840300")
 //        );
+
         if (userQuestions == null || userQuestions.isEmpty()) {
             return;
         }
@@ -63,7 +68,6 @@ public class DailyUpdateQuestionsAndWeightService {
             String status = (String) submission.get("statusDisplay");
             String timeStamp = (String) submission.get("timestamp");
             if (!userQuestions.containsKey(title)) continue;
-
 
             UserQuestionData qData = userQuestions.get(title);
 
@@ -114,12 +118,23 @@ public class DailyUpdateQuestionsAndWeightService {
             if (!userQuestions.containsKey(title)) {
                 String link = leetCodeService.fetchLeetcodeLink(title);
                 List<String> tags = new ArrayList<>();
+                Map<String, String> testCasesMap = new HashMap<>();
                 try {
                     tags = leetCodeService.fetchProblemData(link).getTopicTags();
+                    LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(link);
+                    List<String> questionTags = leetCodeProblem.getTopicTags();
+                    List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
+                    List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
+
+                    for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
+                        testCasesMap.put(testCasesList.get(i), testCaseOutput.get(i));
+                    }
                 } catch (Exception e) {
                     System.out.println("Error With assigning : " + e);
                 }
                 UserQuestionData qData = new UserQuestionData();
+
+                qData.setTestCases(testCasesMap);
                 qData.setTitle(title);
                 qData.setLink(link);
                 qData.setTags(tags);
@@ -134,7 +149,7 @@ public class DailyUpdateQuestionsAndWeightService {
     }
 
     @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true)
-    @Scheduled(cron = "0 33 8,12 * * ?")
+    @Scheduled(cron = "0 00 00,12 * * ?")
     public void scheduledRefresh() {
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {

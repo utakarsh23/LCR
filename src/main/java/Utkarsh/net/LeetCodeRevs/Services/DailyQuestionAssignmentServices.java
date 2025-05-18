@@ -133,7 +133,7 @@ public class DailyQuestionAssignmentServices {
         userRepository.save(user);
     }
 
-    @Scheduled(cron = "00 57 8 * * ?")
+    @Scheduled(cron = "00 00 5 * * ?")
     public void dailyScheduler() {
         List<User> userList = userRepository.findAll();
         for(User user : userList) {
@@ -147,7 +147,7 @@ public class DailyQuestionAssignmentServices {
     }
 
 
-    @Scheduled(cron = "00 57 8 * * ?")
+    @Scheduled(cron = "00 00 4 * * ?")
     public void dailySchedulerForTagsQuestions() {
         List<User> userList = userRepository.findAll();
         for(User user : userList) {

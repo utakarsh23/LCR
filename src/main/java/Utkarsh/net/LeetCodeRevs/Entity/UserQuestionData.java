@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class UserQuestionData {
@@ -14,6 +15,15 @@ public class UserQuestionData {
     private String lastUpdatedTimestamp;
     private boolean coolDown;
     private LocalDate lastAssigned;
+    Map<String, String> testCases;
+
+    public Map<String, String> getTestCases() {
+        return testCases;
+    }
+
+    public void setTestCases(Map<String, String> testCases) {
+        this.testCases = testCases;
+    }
 
     public LocalDate getLastAssigned() {
         return lastAssigned;

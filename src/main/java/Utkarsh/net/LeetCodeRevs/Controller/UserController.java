@@ -1,16 +1,22 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
+import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import Utkarsh.net.LeetCodeRevs.Services.DailyUpdateQuestionsAndWeightService;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -28,8 +34,40 @@ public class UserController {
     @Autowired
     private LeetCodeService leetCodeService;
 
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+
     @Autowired
     private DailyUpdateQuestionsAndWeightService dailyUpdateQuestionsAndWeightService;
+
+    @GetMapping("/cli/daily-question")
+    public ResponseEntity<Map<String, Object>> getDailyQuestion() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Map<String, Object> response = new HashMap<>();
+
+        System.out.println("lmao");
+
+        System.out.println("lmao1");
+
+        User user = userRepository.findUserByEmail(email);
+        if (user == null) {
+            return buildErrorResponse("User not found");
+        }
+        System.out.println("lmao2");
+
+        response.put("dailyQuestionLink", user.getDailyAssignedQuestionLink());
+        response.put("topicQuestionLink", user.getDailyAssignedTopicQuestionLink());
+        return ResponseEntity.ok(response);
+    }
+
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(String errorMsg) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", errorMsg);
+        response.put("dailyQuestionLink", null);
+        response.put("topicQuestionLink", null);
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(response);
+    }
 
 
     //prolly the worst code ever
@@ -48,7 +86,6 @@ public class UserController {
         if (userQuestions == null) {
             userQuestions = new HashMap<>();
         }
-
 
         List<String> questionTitles;
         try {
@@ -87,13 +124,22 @@ public class UserController {
             if (!userQuestions.containsKey(title)) {
                 try {
                     String linkOfQuestion = leetCodeService.fetchLeetcodeLink(title);
-                    List<String> questionTags = leetCodeService.fetchProblemData(linkOfQuestion).getTopicTags();
+                    LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(linkOfQuestion);
+
+                    List<String> questionTags = leetCodeProblem.getTopicTags();
+                    List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
+                    List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
 
                     // Create new UserQuestionData with default weight
                     UserQuestionData questionData = new UserQuestionData();
                     questionData.setTitle(title);
                     questionData.setLink(linkOfQuestion);
                     questionData.setTags(questionTags);
+                    Map<String, String> testCasesMap = new HashMap<>();
+                    for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
+                        testCasesMap.put(testCasesList.get(i), testCaseOutput.get(i));
+                    }
+                    questionData.setTestCases(testCasesMap);
                     questionData.setWeight(1.0);              // default initial weight
 
                     userQuestions.put(title, questionData);
@@ -102,6 +148,7 @@ public class UserController {
                 }
             }
         }
+
         dailyUpdateQuestionsAndWeightService.updateWeightsForSubmissions(user, userQuestions);
 
         user.setUserQuestions(userQuestions);
@@ -139,5 +186,43 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         //wait
+    }
+
+    public static List<String> parseStringTestCases(String rawTestCases) {
+//        List<String> result = new ArrayList<>();
+        String[] lines = rawTestCases.split("\\n");
+
+//        for (String line : lines) {
+//            try {
+////                String testCase = mapper.readValue(line, String.class);
+//                result.add(line);
+//            } catch (Exception e) {
+//                System.err.println("Failed to parse: " + line);
+//            }
+//        }
+        if(lines.length < 1) {
+            System.err.println("Failed to parse, No testCases Found");
+        }
+
+        return Arrays.stream(lines).toList();
+    }
+
+    public static List<String> extractOutputsFromContent(String htmlContent) {
+        List<String> outputs = new ArrayList<>();
+
+        // Normalize and split into lines
+        String[] lines = htmlContent.replaceAll("<[^>]+>", "")  // strip HTML tags
+                .replace("&nbsp;", " ")
+                .split("\n");
+
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("Output:")) {
+                String output = line.substring("Output:".length()).trim();
+                outputs.add(output);
+            }
+        }
+
+        return outputs;
     }
 }

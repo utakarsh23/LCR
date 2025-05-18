@@ -36,12 +36,15 @@ public class SpringSecurity {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Allow signup and login
-                        .requestMatchers("/user/**").authenticated() // Secure user endpoints
+                        .requestMatchers("/public/**").permitAll() // Public APIs (signup, login)
+                        .requestMatchers("/user/**").authenticated() // Secure user APIs
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()) // Enable Basic Auth
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No session
+                // Remove httpBasic() to disable Basic Auth
+                //.httpBasic(Customizer.withDefaults())
+
+                // Enable session management (create session if required)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .build();
     }
 
@@ -56,10 +59,10 @@ public class SpringSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Allow React frontend
+        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Your frontend origin
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // Important to allow cookies
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
