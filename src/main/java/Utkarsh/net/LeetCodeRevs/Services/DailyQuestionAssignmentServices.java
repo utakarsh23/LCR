@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DailyQuestionAssignmentServices {
@@ -52,7 +53,7 @@ public class DailyQuestionAssignmentServices {
         // Random weighted picking
         double rand = Math.random() * totalWeight;
         double cumulative = 0;
-        UserQuestionData selected = null;
+        UserQuestionData selected = null; //just sucks
         for (UserQuestionData q : eligibleQuestions) {
             cumulative += q.getWeight();
             if (rand <= cumulative) {
@@ -68,13 +69,11 @@ public class DailyQuestionAssignmentServices {
         if (selected != null) {
             selected.setCoolDown(true);
             selected.setLastAssigned(today);
-            selected.setWeight(Math.min(selected.getWeight() + 0.1, 2.0));
-
+            selected.setWeight(Math.min(selected.getWeight() + 0.05, 2.0));
             user.setDailyAssignedQuestionLink(selected.getLink());
         }
         userRepository.save(user);
     }
-
 
     //based on question tags
     public void assignTopicBasedQuestion(User user) {
@@ -86,50 +85,55 @@ public class DailyQuestionAssignmentServices {
             throw new RuntimeException("No topic weights found for user");
         }
 
-        //getting lowest tags
-        String weakestTopic = topicWeights.entrySet().stream()
+        // Sort topics by ascending weight (weakest first)
+        List<String> sortedTopics = topicWeights.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No topic available"));
+                .collect(Collectors.toList());
 
-        //question not in cooldown(false)
-        List<UserQuestionData> matching = questions.values().stream()
-                .filter(q -> !q.isCoolDown() &&
-                        q.getTags() != null &&
-                        q.getTags().contains(weakestTopic))
-                .toList();
-
-        if (matching.isEmpty()) throw new RuntimeException("No question found for topic: " + weakestTopic);
-
-        //random weight
-        double total = matching.stream().mapToDouble(UserQuestionData::getWeight).sum();
-        double rand = Math.random() * total;
-        double cumulative = 0;
         UserQuestionData selected = null;
 
-        for (UserQuestionData q : matching) {
-            cumulative += q.getWeight();
-            if (rand <= cumulative) {
-                selected = q;
-                break;
+        for (String topic : sortedTopics) {
+            List<UserQuestionData> matching = questions.values().stream()
+                    .filter(q -> !q.isCoolDown() &&
+                            q.getTags() != null &&
+                            q.getTags().contains(topic))
+                    .toList();
+
+            if (!matching.isEmpty()) {
+                // weighted random pick
+                double total = matching.stream().mapToDouble(UserQuestionData::getWeight).sum();
+                double rand = Math.random() * total;
+                double cumulative = 0;
+
+                for (UserQuestionData q : matching) {
+                    cumulative += q.getWeight();
+                    if (rand <= cumulative) {
+                        selected = q;
+                        break;
+                    }
+                }
+                if (selected != null) break; // found a question, stop looking further
             }
         }
 
-        if (selected != null) {
-            selected.setCoolDown(true);
-            selected.setLastAssigned(today);
-            selected.setWeight(Math.min(2.0, selected.getWeight() + 0.1));
-            user.setDailyAssignedTopicQuestionLink(selected.getLink());
+        if (selected == null) {
+            throw new RuntimeException("No eligible question found for any topic");
         }
+
+
+        // Assign and update
+        selected.setCoolDown(true);
+        selected.setLastAssigned(today);
+        selected.setWeight(Math.min(2.0, selected.getWeight() + 0.05));
 
         user.setUserQuestions(questions);
         user.setTopicWeights(topicWeights);
+        user.setDailyAssignedTopicQuestionLink(selected.getLink());
         userRepository.save(user);
     }
 
-
-    @Scheduled(cron = "0 0 4 * * ?")
+    @Scheduled(cron = "00 57 8 * * ?")
     public void dailyScheduler() {
         List<User> userList = userRepository.findAll();
         for(User user : userList) {
@@ -143,7 +147,7 @@ public class DailyQuestionAssignmentServices {
     }
 
 
-    @Scheduled(cron = "0 0 5 * * ?")
+    @Scheduled(cron = "00 57 8 * * ?")
     public void dailySchedulerForTagsQuestions() {
         List<User> userList = userRepository.findAll();
         for(User user : userList) {

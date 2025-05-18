@@ -31,7 +31,7 @@ public class User {
     }
 
     public void setDailyAssignedTopicQuestionLink(String dailyAssignedTopicQuestionLink) {
-        dailyAssignedTopicQuestionLink = dailyAssignedTopicQuestionLink;
+        this.dailyAssignedTopicQuestionLink = dailyAssignedTopicQuestionLink;
     }
 
     public Map<String, Double> getTopicWeights() {

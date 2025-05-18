@@ -132,8 +132,9 @@ public class DailyUpdateQuestionsAndWeightService {
         user.setUserQuestions(userQuestions);
         userRepository.save(user);
     }
+
     @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true)
-    @Scheduled(cron = "0 0 0,12 * * ?")
+    @Scheduled(cron = "0 33 8,12 * * ?")
     public void scheduledRefresh() {
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
