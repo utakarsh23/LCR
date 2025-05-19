@@ -1,22 +1,21 @@
 package Utkarsh.net.LeetCodeRevs.Controller;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
+import Utkarsh.net.LeetCodeRevs.Entity.DbQuestions;
+import Utkarsh.net.LeetCodeRevs.Entity.TestCase;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
+import Utkarsh.net.LeetCodeRevs.Repository.DbQuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import Utkarsh.net.LeetCodeRevs.Services.DailyUpdateQuestionsAndWeightService;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -34,6 +33,9 @@ public class UserController {
     @Autowired
     private LeetCodeService leetCodeService;
 
+    @Autowired
+    private DbQuestionRepository dbQuestionRepository;
+
     private static final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -41,32 +43,65 @@ public class UserController {
     private DailyUpdateQuestionsAndWeightService dailyUpdateQuestionsAndWeightService;
 
     @GetMapping("/cli/daily-question")
-    public ResponseEntity<Map<String, Object>> getDailyQuestion() {
+    public ResponseEntity<Map<Object, Map<String, Object>>> getDailyQuestion() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Map<String, Object> response = new HashMap<>();
+
+        Map<String, Object> inner = new HashMap<>();
+        Map<Object, Map<String, Object>> outer = new HashMap<>();
 
         System.out.println("lmao");
-
         System.out.println("lmao1");
 
         User user = userRepository.findUserByEmail(email);
         if (user == null) {
             return buildErrorResponse("User not found");
         }
+
         System.out.println("lmao2");
 
-        response.put("dailyQuestionLink", user.getDailyAssignedQuestionLink());
-        response.put("topicQuestionLink", user.getDailyAssignedTopicQuestionLink());
-        return ResponseEntity.ok(response);
+        // Add links
+        inner.put("dailyQuestionLink", user.getDailyAssignedQuestionLink());
+        inner.put("topicQuestionLink", user.getDailyAssignedTopicQuestionLink());
+
+        // Add test cases if available
+        String dqLink = user.getDailyAssignedQuestionLink();
+        String tqLink = user.getDailyAssignedTopicQuestionLink();
+
+        if (dqLink != null) {
+            UserQuestionData dqData = user.getUserQuestions().values().stream()
+                    .filter(q -> dqLink.equals(q.getLink()))
+                    .findFirst()
+                    .orElse(null);
+            inner.put("dailyQuestionTestCases", dqData != null ? dqData.getTestCase() : null);
+        } else {
+            inner.put("dailyQuestionTestCases", null);
+        }
+
+        if (tqLink != null) {
+            UserQuestionData tqData = user.getUserQuestions().values().stream()
+                    .filter(q -> tqLink.equals(q.getLink()))
+                    .findFirst()
+                    .orElse(null);
+            inner.put("topicQuestionTestCases", tqData != null ? tqData.getTestCase() : null);
+        } else {
+            inner.put("topicQuestionTestCases", null);
+        }
+
+        outer.put("data", inner);
+        return ResponseEntity.ok(outer);
     }
 
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(String errorMsg) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", errorMsg);
-        response.put("dailyQuestionLink", null);
-        response.put("topicQuestionLink", null);
-        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(response);
+    private ResponseEntity<Map<Object, Map<String, Object>>> buildErrorResponse(String errorMsg) {
+        Map<String, Object> innerResponse = new HashMap<>();
+        innerResponse.put("error", errorMsg);
+        innerResponse.put("dailyQuestionLink", null);
+        innerResponse.put("topicQuestionLink", null);
+
+        Map<Object, Map<String, Object>> outerResponse = new HashMap<>();
+        outerResponse.put("response", innerResponse);
+
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(outerResponse);
     }
 
 
@@ -124,22 +159,28 @@ public class UserController {
             if (!userQuestions.containsKey(title)) {
                 try {
                     String linkOfQuestion = leetCodeService.fetchLeetcodeLink(title);
-                    LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(linkOfQuestion);
+                    List<String> questionTags;
+                    List<TestCase> testCase = List.of();
+                    if(dbQuestionRepository.findBy(slugName(title))) {
+                        DbQuestions dbQuestions = dbQuestionRepository.findByName(slugName(title));
+                        questionTags = dbQuestions.getTags();
+                        testCase = dbQuestions.getTestcases();
 
-                    List<String> questionTags = leetCodeProblem.getTopicTags();
-                    List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
-                    List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
+                    } else {
+                        LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(linkOfQuestion);
+                        questionTags = leetCodeProblem.getTopicTags();
+                        List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
+                        List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
+                        for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
+                            testCase.add(new TestCase(testCasesList.get(i), testCaseOutput.get(i)));
+                        }
+                    }
 
-                    // Create new UserQuestionData with default weight
                     UserQuestionData questionData = new UserQuestionData();
                     questionData.setTitle(title);
                     questionData.setLink(linkOfQuestion);
                     questionData.setTags(questionTags);
-                    Map<String, String> testCasesMap = new HashMap<>();
-                    for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
-                        testCasesMap.put(testCasesList.get(i), testCaseOutput.get(i));
-                    }
-                    questionData.setTestCases(testCasesMap);
+                    questionData.setTestCase(testCase);
                     questionData.setWeight(1.0);              // default initial weight
 
                     userQuestions.put(title, questionData);
@@ -224,5 +265,9 @@ public class UserController {
         }
 
         return outputs;
+    }
+
+    public static String slugName(String name) {
+        return name.trim().toLowerCase().replaceAll("\\s", "-");
     }
 }

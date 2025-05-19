@@ -28,6 +28,7 @@ public class NotificationServices {
 
     @Scheduled(cron = "0 0 20 * * ?")
     public void remindUsersToSolveDailyQuestion() { // add feature to not send messages to the user who already solved today's question
+        System.out.println("Reminder to solving question given");
         for (User user : userRepository.findAll()) {
             if(user.getDailyAssignedQuestionLink() != null)
                 sendReminderNotification(user.getEmail());
@@ -36,6 +37,7 @@ public class NotificationServices {
 
     @Scheduled(cron = "0 0 8 * * ?")
     public void questionAssignmentNotification() { // add feature to not to sned messages to the user who already solved today's question
+        System.out.println("Reminder to assignment of question given");
         for (User user : userRepository.findAll()) {
             if(user.getDailyAssignedTopicQuestionLink() != null || user.getDailyAssignedQuestionLink() != null) {
                 sendDailyAssignmentNotification(

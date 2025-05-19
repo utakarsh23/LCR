@@ -15,14 +15,15 @@ public class UserQuestionData {
     private String lastUpdatedTimestamp;
     private boolean coolDown;
     private LocalDate lastAssigned;
-    Map<String, String> testCases;
+    private List<TestCase> testCase;
 
-    public Map<String, String> getTestCases() {
-        return testCases;
+
+    public List<TestCase> getTestCase() {
+        return testCase;
     }
 
-    public void setTestCases(Map<String, String> testCases) {
-        this.testCases = testCases;
+    public void setTestCase(List<TestCase> testCase) {
+        this.testCase = testCase;
     }
 
     public LocalDate getLastAssigned() {

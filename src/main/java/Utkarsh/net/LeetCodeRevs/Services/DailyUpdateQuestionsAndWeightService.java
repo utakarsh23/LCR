@@ -1,6 +1,7 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
+import Utkarsh.net.LeetCodeRevs.Entity.TestCase;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
@@ -118,23 +119,22 @@ public class DailyUpdateQuestionsAndWeightService {
             if (!userQuestions.containsKey(title)) {
                 String link = leetCodeService.fetchLeetcodeLink(title);
                 List<String> tags = new ArrayList<>();
-                Map<String, String> testCasesMap = new HashMap<>();
+                List<TestCase> testCases = List.of();
                 try {
                     tags = leetCodeService.fetchProblemData(link).getTopicTags();
                     LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(link);
                     List<String> questionTags = leetCodeProblem.getTopicTags();
                     List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
                     List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
-
                     for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
-                        testCasesMap.put(testCasesList.get(i), testCaseOutput.get(i));
+                        testCases.add(new TestCase(testCasesList.get(i), testCaseOutput.get(i)));
                     }
                 } catch (Exception e) {
                     System.out.println("Error With assigning : " + e);
                 }
                 UserQuestionData qData = new UserQuestionData();
 
-                qData.setTestCases(testCasesMap);
+                qData.setTestCase(testCases);
                 qData.setTitle(title);
                 qData.setLink(link);
                 qData.setTags(tags);
@@ -151,6 +151,7 @@ public class DailyUpdateQuestionsAndWeightService {
     @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true)
     @Scheduled(cron = "0 00 00,12 * * ?")
     public void scheduledRefresh() {
+        System.out.println("Cache being reset");
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
             refreshUserQuestionsAndWeights(user);

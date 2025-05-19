@@ -135,6 +135,7 @@ public class DailyQuestionAssignmentServices {
 
     @Scheduled(cron = "00 00 5 * * ?")
     public void dailyScheduler() {
+        System.out.println("Scheduler for Questions Triggered");
         List<User> userList = userRepository.findAll();
         for(User user : userList) {
             try {
@@ -149,6 +150,7 @@ public class DailyQuestionAssignmentServices {
 
     @Scheduled(cron = "00 00 4 * * ?")
     public void dailySchedulerForTagsQuestions() {
+        System.out.println("Scheduler for Questions Triggered by Topics");
         List<User> userList = userRepository.findAll();
         for(User user : userList) {
             try {
