@@ -15,19 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-
+//not mendatorily used, created for debugging and stuffs
 @RestController
 @RequestMapping("/dailyQues")
 public class DailyQuestionsController {
 
     @Autowired
-    private QuestionServices questionServices;
-
-    @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/byQuestionType")
-    public ResponseEntity<?> getDailyQuestionByQuestionType(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getDailyQuestionByQuestionType(@AuthenticationPrincipal UserDetails userDetails) { //AuthenticationPrincipal is to get/inject currently authenticated user details such as email or whatever using headers or seesion or whatever method(UserDetail in this case)
         String email = userDetails.getUsername();
         User user = userRepository.findUserByEmail(email);
         if (user == null)
@@ -60,6 +57,6 @@ public class DailyQuestionsController {
         response.put("link", link);
         response.put("topics", questionData.getTags());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response); //returns both quesLink and tags as the methodName suggests
     }
 }

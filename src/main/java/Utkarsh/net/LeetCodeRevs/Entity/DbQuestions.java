@@ -8,8 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+//used for question searching from the datasheet
 @Data
-@NoArgsConstructor
+@NoArgsConstructor //says such that no arg-constructors is req for this class
 @Document(collection = "questions")
 public class DbQuestions {
 

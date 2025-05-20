@@ -2,6 +2,7 @@ package Utkarsh.net.LeetCodeRevs.DTO;
 
 import java.util.List;
 
+//graphQl data fetching and it's POJO for storing it and structure
 public class LeetCodeProblem {
     private String questionId;
     private String title;

@@ -101,6 +101,7 @@ public class LeetCodeService {
     //to returning the titles and fetching from the API
     @Cacheable(value = "leetcodeTitles", key = "#username")
     public List<String> getQuestionTitles(String username) {
+        System.out.println("Entered");
         String url = "https://alfa-leetcode-api.onrender.com/" + username + "/acSubmission?limit=20";
 
         LeetCodeResponse response = restTemplate.getForObject(url, LeetCodeResponse.class);

@@ -6,8 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+//used for the API also it's POJO for storirg the tags and links thou, rest are not needed so removed them
 @Data
-@Document(collection = "LCResponse")
 public class LeetCodeResponse {
     private int count;
     private List<Submission> submission;
@@ -29,7 +29,6 @@ public class LeetCodeResponse {
         this.link = link;
     }
 
-    // Getters and setters
     public List<Submission> getSubmission() {
         return submission;
     }

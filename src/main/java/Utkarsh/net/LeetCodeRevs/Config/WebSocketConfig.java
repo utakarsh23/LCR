@@ -11,8 +11,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
+    public void registerStompEndpoints(StompEndpointRegistry registry) { //registering stomp end points
+        registry.addEndpoint("/ws") //the path for the ntf, i.e localhost:8082/ws kinda
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }

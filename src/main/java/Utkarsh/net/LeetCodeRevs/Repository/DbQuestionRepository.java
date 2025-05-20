@@ -6,7 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface DbQuestionRepository extends MongoRepository<DbQuestions, ObjectId> {
 
-    boolean findBy(String name);
-
     DbQuestions findByName(String name);
 }

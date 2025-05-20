@@ -17,7 +17,6 @@ public class User {
     private ObjectId id;
 
     private String email;
-//    @JsonIgnore
     private String password;
     private String leetCodeUserName;
     private String dailyAssignedQuestionLink;
