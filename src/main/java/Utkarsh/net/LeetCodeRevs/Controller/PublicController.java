@@ -29,6 +29,7 @@ public class PublicController {
 
     @GetMapping
     public String health() { //healthCheck API
+        System.out.println("publichealth");
         return "It's working";
     }
 

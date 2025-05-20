@@ -109,8 +109,7 @@ public class LeetCodeService {
             return Collections.emptyList();
         }
 
-        System.out.println(response.getSubmission().size() + " : Size Of Questions");
-
+        System.out.println("Question Titles");
         return response.getSubmission()
                 .stream()
                 .map(Submission::getTitle)
@@ -118,7 +117,7 @@ public class LeetCodeService {
     }
 
     //to returning the link and fetching from the API
-    @Cacheable(value = "leetcodeLinks", key = "#titleSlug")
+    @CachePut(value = "leetcodeLinks", key = "#titleSlug")
     public String fetchLeetcodeLink(String titleSlug) {
         titleSlug = titleSlug.trim().toLowerCase().replaceAll("\\s+", "-");
         String url = "https://alfa-leetcode-api.onrender.com/select?titleSlug=" + titleSlug;

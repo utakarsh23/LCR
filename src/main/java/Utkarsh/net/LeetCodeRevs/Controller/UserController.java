@@ -8,10 +8,12 @@ import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.DbQuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import Utkarsh.net.LeetCodeRevs.Services.DailyUpdateQuestionsAndWeightService;
+import Utkarsh.net.LeetCodeRevs.Services.DbQuestionServices;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,6 +37,9 @@ public class UserController {
 
     @Autowired
     private DbQuestionRepository dbQuestionRepository;
+
+    @Autowired
+    private DbQuestionServices dbQuestionServices;
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -111,12 +116,12 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
+        System.out.println("yayyy");
         User user = userRepository.findUserByEmail(email);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        // Initialize userQuestions map if null
         Map<String, UserQuestionData> userQuestions = user.getUserQuestions();
         if (userQuestions == null) {
             userQuestions = new HashMap<>();
@@ -148,24 +153,22 @@ public class UserController {
 //                    "K Closest Points to Origin"
 //            );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Failed to fetch question titles from LeetCode API: " + e.getMessage());
+            return ResponseEntity.ok("Failed to fetch question titles from LeetCode API: " + e.getMessage());
         }
 
 
         for (String title : questionTitles) {
-            // Check if question already exists by title (you may want to map title -> questionId here)
-            // Since keys are questionIds, you might need to fetch questionId from title or elsewhere
-            // For now, assuming title is unique and used as questionId
             if (!userQuestions.containsKey(title)) {
                 try {
                     String linkOfQuestion = leetCodeService.fetchLeetcodeLink(title);
                     List<String> questionTags;
-                    List<TestCase> testCase = List.of();
-                    if(dbQuestionRepository.findBy(slugName(title))) {
-                        DbQuestions dbQuestions = dbQuestionRepository.findByName(slugName(title));
+                    List<TestCase> testCase = new ArrayList<>();
+                    boolean t = dbQuestionServices.findBy(title);
+                    String s = slugName(title);
+                    if(t) {
+                        DbQuestions dbQuestions = dbQuestionRepository.findByName(s);
                         questionTags = dbQuestions.getTags();
                         testCase = dbQuestions.getTestcases();
-
                     } else {
                         LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(linkOfQuestion);
                         questionTags = leetCodeProblem.getTopicTags();
@@ -181,10 +184,13 @@ public class UserController {
                     questionData.setLink(linkOfQuestion);
                     questionData.setTags(questionTags);
                     questionData.setTestCase(testCase);
-                    questionData.setWeight(1.0);              // default initial weight
+                    questionData.setWeight(1.0);
 
                     userQuestions.put(title, questionData);
                 } catch (Exception e) {
+                    //in case api failes, it still saves the ftetches ques
+                    user.setUserQuestions(userQuestions);
+                    userRepository.save(user);
                     return ResponseEntity.badRequest().body("Failed to fetch link or tags for title: " + title + " - " + e.getMessage());
                 }
             }
@@ -195,6 +201,7 @@ public class UserController {
         user.setUserQuestions(userQuestions);
         userRepository.save(user);
 
+        System.out.println(user);
         return ResponseEntity.ok(user);
     }
 

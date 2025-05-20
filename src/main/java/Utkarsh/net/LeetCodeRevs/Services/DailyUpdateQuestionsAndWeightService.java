@@ -1,23 +1,24 @@
 package Utkarsh.net.LeetCodeRevs.Services;
 
 import Utkarsh.net.LeetCodeRevs.DTO.LeetCodeProblem;
+import Utkarsh.net.LeetCodeRevs.Entity.DbQuestions;
 import Utkarsh.net.LeetCodeRevs.Entity.TestCase;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
+import Utkarsh.net.LeetCodeRevs.Repository.DbQuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static Utkarsh.net.LeetCodeRevs.Controller.UserController.extractOutputsFromContent;
-import static Utkarsh.net.LeetCodeRevs.Controller.UserController.parseStringTestCases;
+import static Utkarsh.net.LeetCodeRevs.Controller.UserController.*;
 
 @Service
 public class DailyUpdateQuestionsAndWeightService {
@@ -27,6 +28,12 @@ public class DailyUpdateQuestionsAndWeightService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DbQuestionServices dbQuestionServices;
+
+    @Autowired
+    private DbQuestionRepository dbQuestionRepository;
 
     public void updateWeightsForSubmissions(User user, Map<String, UserQuestionData> userQuestions) {
         List<Map<String, Object>> submissions = leetCodeService.getRecentSubmissionTitleTimestampStatus(user.getLeetCodeUserName());
@@ -119,27 +126,36 @@ public class DailyUpdateQuestionsAndWeightService {
             if (!userQuestions.containsKey(title)) {
                 String link = leetCodeService.fetchLeetcodeLink(title);
                 List<String> tags = new ArrayList<>();
-                List<TestCase> testCases = List.of();
+                List<TestCase> testCase = new ArrayList<>();
+                boolean t = dbQuestionServices.findBy(title);
+                String s = slugName(title);
                 try {
-                    tags = leetCodeService.fetchProblemData(link).getTopicTags();
-                    LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(link);
-                    List<String> questionTags = leetCodeProblem.getTopicTags();
-                    List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
-                    List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
-                    for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
-                        testCases.add(new TestCase(testCasesList.get(i), testCaseOutput.get(i)));
+                    if(t) {
+                        DbQuestions dbQuestions = dbQuestionRepository.findByName(s);
+                        tags = dbQuestions.getTags();
+                        testCase = dbQuestions.getTestcases();
+                    } else {
+                        LeetCodeProblem leetCodeProblem = leetCodeService.fetchProblemData(link);
+                        tags = leetCodeProblem.getTopicTags();
+                        List<String> testCasesList = parseStringTestCases(leetCodeProblem.getExampleTestcases());
+                        List<String> testCaseOutput = extractOutputsFromContent(leetCodeProblem.getContent());
+                        for (int i = 0; i < Math.min(testCasesList.size(), testCaseOutput.size()); i++) {
+                            testCase.add(new TestCase(testCasesList.get(i), testCaseOutput.get(i)));
+                        }
                     }
+                    UserQuestionData qData = new UserQuestionData();
+
+                    qData.setTestCase(testCase);
+                    qData.setTitle(title);
+                    qData.setLink(link);
+                    qData.setTags(tags);
+                    qData.setWeight(1.0);
+                    userQuestions.put(title, qData);
                 } catch (Exception e) {
+                    user.setUserQuestions(userQuestions);
+                    userRepository.save(user);
                     System.out.println("Error With assigning : " + e);
                 }
-                UserQuestionData qData = new UserQuestionData();
-
-                qData.setTestCase(testCases);
-                qData.setTitle(title);
-                qData.setLink(link);
-                qData.setTags(tags);
-                qData.setWeight(1.0);
-                userQuestions.put(title, qData);
             }
         }
 

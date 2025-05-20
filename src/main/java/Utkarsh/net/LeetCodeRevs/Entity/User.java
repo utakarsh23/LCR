@@ -1,5 +1,6 @@
 package Utkarsh.net.LeetCodeRevs.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -16,6 +17,7 @@ public class User {
     private ObjectId id;
 
     private String email;
+//    @JsonIgnore
     private String password;
     private String leetCodeUserName;
     private String dailyAssignedQuestionLink;
@@ -90,4 +92,17 @@ public class User {
         this.userQuestions = userQuestions;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "       id=" + id + ",\n\n" +
+                "       email='" + email + '\'' + "\n\n" +
+                "       password='" + password + '\'' + ",\n\n" +
+                "       leetCodeUserName='" + leetCodeUserName + '\'' + ",\n\n" +
+                "       dailyAssignedQuestionLink='" + dailyAssignedQuestionLink + '\'' + ",\n\n" +
+                "       dailyAssignedTopicQuestionLink='" + dailyAssignedTopicQuestionLink + '\'' + ",\n\n" +
+                "       topicWeights=" + topicWeights + ",\n\n" +
+                "       userQuestions=" + userQuestions + "\n\n" +
+                '}';
+    }
 }
