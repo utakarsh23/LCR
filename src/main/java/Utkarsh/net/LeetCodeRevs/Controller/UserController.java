@@ -13,7 +13,6 @@ import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -48,66 +47,54 @@ public class UserController {
     private DailyUpdateQuestionsAndWeightService dailyUpdateQuestionsAndWeightService;
 
     @GetMapping("/cli/daily-question")
-    public ResponseEntity<Map<Object, Map<String, Object>>> getDailyQuestion() {
+    public ResponseEntity<Map<String, List<TestCase>>> getDailyQuestion() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
-        Map<String, Object> inner = new HashMap<>();
-        Map<Object, Map<String, Object>> outer = new HashMap<>();
-
-        System.out.println("lmao");
-        System.out.println("lmao1");
-
         User user = userRepository.findUserByEmail(email);
         if (user == null) {
-            return buildErrorResponse("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
-        System.out.println("lmao2");
+        Map<String, List<TestCase>> response = new HashMap<>();
 
-        // Add links
-        inner.put("dailyQuestionLink", user.getDailyAssignedQuestionLink());
-        inner.put("topicQuestionLink", user.getDailyAssignedTopicQuestionLink());
-
-        // Add test cases if available
         String dqLink = user.getDailyAssignedQuestionLink();
-        String tqLink = user.getDailyAssignedTopicQuestionLink();
-
         if (dqLink != null) {
             UserQuestionData dqData = user.getUserQuestions().values().stream()
                     .filter(q -> dqLink.equals(q.getLink()))
                     .findFirst()
                     .orElse(null);
-            inner.put("dailyQuestionTestCases", dqData != null ? dqData.getTestCase() : null);
-        } else {
-            inner.put("dailyQuestionTestCases", null);
+
+            if (dqData != null && dqData.getTestCase() != null) {
+                response.put(dqLink, dqData.getTestCase());
+            }
         }
 
+        String tqLink = user.getDailyAssignedTopicQuestionLink();
         if (tqLink != null) {
             UserQuestionData tqData = user.getUserQuestions().values().stream()
                     .filter(q -> tqLink.equals(q.getLink()))
                     .findFirst()
                     .orElse(null);
-            inner.put("topicQuestionTestCases", tqData != null ? tqData.getTestCase() : null);
-        } else {
-            inner.put("topicQuestionTestCases", null);
+
+            if (tqData != null && tqData.getTestCase() != null) {
+                response.put(tqLink, tqData.getTestCase());
+            }
         }
 
-        outer.put("data", inner);
-        return ResponseEntity.ok(outer);
+        return ResponseEntity.ok(response);
     }
-
-    private ResponseEntity<Map<Object, Map<String, Object>>> buildErrorResponse(String errorMsg) {
-        Map<String, Object> innerResponse = new HashMap<>();
-        innerResponse.put("error", errorMsg);
-        innerResponse.put("dailyQuestionLink", null);
-        innerResponse.put("topicQuestionLink", null);
-
-        Map<Object, Map<String, Object>> outerResponse = new HashMap<>();
-        outerResponse.put("response", innerResponse);
-
-        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(outerResponse);
-    }
+//    private ResponseEntity<Map<String, Map<String, Object>>> buildErrorResponse(String errorMsg) {
+//        Map<String, Object> innerResponse = new HashMap<>();
+//        innerResponse.put("error", errorMsg);
+//        innerResponse.put("dailyQuestionLink", null);
+//        innerResponse.put("topicQuestionLink", null);
+//
+//        Map<String, Map<String, Object>> outerResponse = new HashMap<>();
+//        outerResponse.put("response", innerResponse);
+//
+//        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(outerResponse);
+//    }
 
 
     //prolly the worst code ever

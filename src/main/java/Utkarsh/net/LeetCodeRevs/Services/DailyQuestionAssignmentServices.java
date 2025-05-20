@@ -4,6 +4,7 @@ import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class DailyQuestionAssignmentServices {
 
     //based on questions only
     public void assignDailyQuestion(User user) {
+        System.out.println("Assigning Ques by q type");
         Map<String, UserQuestionData> questions = user.getUserQuestions();
         if (questions == null || questions.isEmpty()) {
             throw new RuntimeException("No questions available for assignment");
@@ -72,11 +74,14 @@ public class DailyQuestionAssignmentServices {
             selected.setWeight(Math.min(selected.getWeight() + 0.05, 2.0));
             user.setDailyAssignedQuestionLink(selected.getLink());
         }
+        System.out.println("Assigned Ques");
         userRepository.save(user);
     }
 
     //based on question tags
     public void assignTopicBasedQuestion(User user) {
+        System.out.println("Assigning Ques by topics type");
+
         Map<String, UserQuestionData> questions = user.getUserQuestions();
         Map<String, Double> topicWeights = user.getTopicWeights();
         LocalDate today = LocalDate.now();
@@ -130,12 +135,15 @@ public class DailyQuestionAssignmentServices {
         user.setUserQuestions(questions);
         user.setTopicWeights(topicWeights);
         user.setDailyAssignedTopicQuestionLink(selected.getLink());
+        System.out.println("Assigned Ques");
+
         userRepository.save(user);
     }
 
-    @Scheduled(cron = "00 00 5 * * ?")
+    @Async
+    @Scheduled(cron = "035 30 16 * * ?")
     public void dailyScheduler() {
-        System.out.println("Scheduler for Questions Triggered");
+        System.out.println("Scheduler for Questions by q Triggered");
         List<User> userList = userRepository.findAll();
         for(User user : userList) {
             try {
@@ -148,7 +156,8 @@ public class DailyQuestionAssignmentServices {
     }
 
 
-    @Scheduled(cron = "00 00 4 * * ?")
+    @Async
+    @Scheduled(cron = "035 30 16 * * ?")
     public void dailySchedulerForTagsQuestions() {
         System.out.println("Scheduler for Questions Triggered by Topics");
         List<User> userList = userRepository.findAll();
