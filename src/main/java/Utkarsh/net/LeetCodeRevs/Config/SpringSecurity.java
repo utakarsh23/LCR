@@ -38,7 +38,6 @@ public class SpringSecurity {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll() // Public APIs (signup, login)
                         .requestMatchers("/user/**").authenticated() // Secure user APIs
-                        .anyRequest().authenticated()
                 )
                 // Remove httpBasic() to disable Basic Auth
                 //.httpBasic(Customizer.withDefaults())
@@ -59,10 +58,11 @@ public class SpringSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Your frontend origin
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // Important to allow cookies
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Origin", "Accept"));
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

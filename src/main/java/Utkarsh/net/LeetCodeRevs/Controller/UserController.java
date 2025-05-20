@@ -12,6 +12,8 @@ import Utkarsh.net.LeetCodeRevs.Services.DbQuestionServices;
 import Utkarsh.net.LeetCodeRevs.Services.LeetCodeService;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +97,6 @@ public class UserController {
 //
 //        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(outerResponse);
 //    }
-
 
     //prolly the worst code ever
     @GetMapping("getProfile")
@@ -188,7 +189,6 @@ public class UserController {
         user.setUserQuestions(userQuestions);
         userRepository.save(user);
 
-        System.out.println(user);
         return ResponseEntity.ok(user);
     }
 
@@ -263,5 +263,18 @@ public class UserController {
 
     public static String slugName(String name) {
         return name.trim().toLowerCase().replaceAll("\\s", "-");
+    }
+
+    @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+    @GetMapping("/check")
+    public ResponseEntity<String> checkAuth(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            Arrays.stream(request.getCookies())
+                    .forEach(cookie -> System.out.println("Cookie: " + cookie.getName() + " = " + cookie.getValue()));
+        } else {
+            System.out.println("No cookies received");
+        }
+
+        return ResponseEntity.ok("Authenticated");
     }
 }
