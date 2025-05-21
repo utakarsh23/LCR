@@ -3,7 +3,6 @@ package Utkarsh.net.LeetCodeRevs.Controller;
 import Utkarsh.net.LeetCodeRevs.Entity.User;
 import Utkarsh.net.LeetCodeRevs.Entity.UserQuestionData;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
-import Utkarsh.net.LeetCodeRevs.Services.QuestionServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

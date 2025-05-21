@@ -17,12 +17,12 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //to hash the password
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); //to hash the password
 
 
-    public void createUser(User user) {
-        user.setEmail(user.getEmail());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public void createUser(User user) { //getting the user
+        user.setEmail(user.getEmail()); //
+        user.setPassword(passwordEncoder.encode(user.getPassword())); //hashing the password usingBCryptPasswordEncoder
         user.setLeetCodeUserName(user.getLeetCodeUserName());
         userRepository.save(user);
     }

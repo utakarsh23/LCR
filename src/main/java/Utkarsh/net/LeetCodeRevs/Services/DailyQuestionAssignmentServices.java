@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class DailyQuestionAssignmentServices {
+public class DailyQuestionAssignmentServices { // for daily ques assignment to each user by the weights n stuffs,
 
     @Autowired
     private UserRepository userRepository;
@@ -182,7 +182,7 @@ public class DailyQuestionAssignmentServices {
     }
 
     @Async
-    @Scheduled(cron = "00 00 5 * * ?") //at sec:min:hr(24)
+    @Scheduled(cron = "00 58 01 * * ?") //at sec:min:hr(24)
     public void dailyScheduler() {
         System.out.println("Scheduler for Questions by q Triggered");
         List<User> userList = userRepository.findAll();
@@ -198,7 +198,7 @@ public class DailyQuestionAssignmentServices {
 
 
     @Async
-    @Scheduled(cron = "00 00 6 * * ?") //at sec:min:hr(24)
+    @Scheduled(cron = "00 57 01 * * ?") //at sec:min:hr(24)
     public void dailySchedulerForTagsQuestions() {
         System.out.println("Scheduler for Questions Triggered by Topics");
         List<User> userList = userRepository.findAll();

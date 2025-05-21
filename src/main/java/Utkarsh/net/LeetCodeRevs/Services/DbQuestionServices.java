@@ -11,13 +11,13 @@ public class DbQuestionServices {
     @Autowired
     private DbQuestionRepository dbQuestionRepository;
 
-    public boolean findBy(String name) {
-        name = name.trim().toLowerCase().replaceAll("\\s", "-");
+    public boolean findBy(String name) { //finding the question in the db with boolean return to get inside method
+        name = name.trim().toLowerCase().replaceAll("\\s", "-"); //for matching the slug type question name in fb
         try {
             DbQuestions byName = dbQuestionRepository.findByName(name);
             return byName.getName().equals(name);
         } catch (Exception ignored){
-            return false;
+            return false; //returning false when user == null as we haven't used if else for checking nullability
         }
     }
 

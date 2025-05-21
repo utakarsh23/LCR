@@ -6,6 +6,8 @@ import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import Utkarsh.net.LeetCodeRevs.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,10 @@ public class PublicController {
 
     @Autowired
     private AuthenticationManager authenticationManager; //authentication manager for login and stuffs management
+
+    @Autowired
+    private CacheManager cacheManager;
+
 
     @GetMapping
     public String health() { //healthCheck API
@@ -72,5 +78,30 @@ public class PublicController {
         }
         userService.createUser(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/cache") //just random to print the Cache inside the caffein cache manager
+    public void printCache() {
+        printLeetcodeLinksCache();
+    }
+
+    public void printLeetcodeLinksCache() {
+        Cache leetcodeLinksCache = cacheManager.getCache("leetcodeLinks");
+        System.out.println("cache printing");
+        if (leetcodeLinksCache != null) {
+            Object nativeCache = leetcodeLinksCache.getNativeCache();
+            if (nativeCache instanceof com.github.benmanes.caffeine.cache.Cache) {
+                com.github.benmanes.caffeine.cache.Cache<?, ?> caffeineCache =
+                        (com.github.benmanes.caffeine.cache.Cache<?, ?>) nativeCache;
+
+                caffeineCache.asMap().forEach((key, value) -> {
+                    System.out.println("Cache Key: " + key + ", Value: " + value);
+                });
+            } else {
+                System.out.println("Native cache is not Caffeine, it's: " + nativeCache.getClass().getName());
+            }
+        } else {
+            System.out.println("Cache 'leetcodeLinks' not found!");
+        }
     }
 }

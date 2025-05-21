@@ -36,9 +36,11 @@ public class DailyUpdateQuestionsAndWeightService {
     @Autowired
     private DbQuestionRepository dbQuestionRepository;
 
+    //checks for the submissions of users and updates weight for the correct submissions and decrease for wrong ones
     public void updateWeightsForSubmissions(User user, Map<String, UserQuestionData> userQuestions) {
-        List<Map<String, Object>> submissions = leetCodeService.getRecentSubmissionTitleTimestampStatus(user.getLeetCodeUserName());
-        Map<String, Double> topicWeights = user.getTopicWeights();
+        List<Map<String, Object>> submissions = // List<<name, <timeStamp, status>>> //timestamp -> the question submission time, it is for checking if it's already processed or not; list for all 20 subs
+                leetCodeService.getRecentSubmissionTitleTimestampStatus(user.getLeetCodeUserName()); //for getting the time psamps o the questions for checking if it's already checked and also for getting all recent submissions(last 20) for the user;
+        Map<String, Double> topicWeights = user.getTopicWeights(); //getting topic weights to update
 //        List<Map<String, Object>> submissions = List.of(
 //                Map.of("title", "Valid Parentheses", "statusDisplay", "Accepted", "timestamp", "1705842396"),
 //                Map.of("title", "Combination Sum", "statusDisplay", "Wrong Answer", "timestamp", "1705842331"),
@@ -76,29 +78,32 @@ public class DailyUpdateQuestionsAndWeightService {
             String title = (String) submission.get("title");
             String status = (String) submission.get("statusDisplay");
             String timeStamp = (String) submission.get("timestamp");
-            if (!userQuestions.containsKey(title)) continue;
+            if (!userQuestions.containsKey(title)) continue; //for new ques not in db, skipping for now
 
             UserQuestionData qData = userQuestions.get(title);
 
-            String lastSeenTimestamp = qData.getLastUpdatedTimestamp();
-            if (lastSeenTimestamp != null && timeStamp.compareTo(lastSeenTimestamp) <= 0) {
+            String lastSeenTimestamp = qData.getLastUpdatedTimestamp(); //getting last updated ts
+            if (lastSeenTimestamp != null && timeStamp.compareTo(lastSeenTimestamp) <= 0) { //we are skipping to next ques if timestamp is before or equal to the new ts(old question already checked or the same question)
+                /*		compareTo() returns:
+	                	0 if both timestamps are equal,
+	                	< 0 if timeStamp is before lastSeenTimestamp,
+	                	> 0 if timeStamp is after lastSeenTimestamp.*/
                 continue;
             }
             double currentWeight = qData.getWeight();
 
-
             switch (status) {
-                case "Wrong Answer", "Time Limit Exceeded" -> {
-                    currentWeight = Math.max(0.1, currentWeight - 0.1);
-                    qData.setWeight(currentWeight);
-                }
-                case "Accepted" -> {
+                case "Accepted" -> { //i accepted then increasing the weight by 0.05
                     currentWeight = Math.min(2.0, currentWeight + 0.05);
                     qData.setWeight(currentWeight);
                 }
+                default -> { //if not then decreasing directly by 0.1, my gym think before submitting wrong ans 🤣
+                    currentWeight = Math.max(0.1, currentWeight - 0.1);
+                    qData.setWeight(currentWeight);
+                }
             }
-            qData.setLastUpdatedTimestamp(timeStamp);
-            for (String tag : qData.getTags()) {
+            qData.setLastUpdatedTimestamp(timeStamp); //setiing the new time stamp
+            for (String tag : qData.getTags()) { //same for tags
                 double topicWeight = topicWeights.getOrDefault(tag, 1.0);
 
                 switch (status) {
@@ -114,7 +119,7 @@ public class DailyUpdateQuestionsAndWeightService {
         userRepository.save(user);
     }
 
-    //for scheduling twice a day
+    //added scheduling twice a day for each user to be updated twice daily with new questions solved
     public void refreshUserQuestionsAndWeights(User user) {
         Map<String, UserQuestionData> userQuestions = user.getUserQuestions();
         if (userQuestions == null) {
@@ -123,15 +128,15 @@ public class DailyUpdateQuestionsAndWeightService {
 
         List<String> questionTitles;
         try {
-            questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName()); //getching the api for last 20 correct submissions, returning it into a List of Strings in one go
+            questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName()); //getting questions from the api for last 20 correct submissions, returning it into a List of Strings in one go
         } catch (Exception e) {
             questionTitles = new ArrayList<>();
             System.err.println("Failed to fetch question titles from LeetCode API: " + e.getMessage());
         }
-        for (String title : questionTitles) {
+        for (String title : questionTitles) { // refer user controller for code comments, they are same,
             if (!userQuestions.containsKey(title)) {
                 String link = leetCodeService.fetchLeetcodeLink(title);
-                List<String> tags = new ArrayList<>();
+                List<String> tags;
                 List<TestCase> testCase = new ArrayList<>();
                 boolean t = dbQuestionServices.findBy(title);
                 String s = slugName(title);
@@ -168,18 +173,18 @@ public class DailyUpdateQuestionsAndWeightService {
         }
 
         System.out.println("point2");
-        updateWeightsForSubmissions(user, userQuestions);
-        user.setUserQuestions(userQuestions);
+        updateWeightsForSubmissions(user, userQuestions); //this one is for updating user questions and tags with new weights
+        user.setUserQuestions(userQuestions); //saving the quess
         userRepository.save(user);
     }
 
-    @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true)
-    @Scheduled(cron = "00 55 00,12,7 * * ?")
+    @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true) //refreshing the cache for each api's daily after an interval of 12 hours and scheduling both upper methods
+    @Scheduled(cron = "00 039 00,12 * * ?")
     public void scheduledRefresh() {
         System.out.println("Cache being reset");
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
-            refreshUserQuestionsAndWeights(user);
+            refreshUserQuestionsAndWeights(user); // Flow : at 0 and 12 daily -> scheduledRefresh() -> refreshUserQuestionsAndWeights(User) -> updateWeightsForSubmissions(user, userQuestionsFromDB)
         }
     }
 }
