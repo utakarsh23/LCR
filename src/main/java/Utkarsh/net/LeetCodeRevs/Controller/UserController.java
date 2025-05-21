@@ -202,6 +202,16 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> userProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findUserByEmail(authentication.getName());
+        if(user == null) {
+            return ResponseEntity.badRequest().body("huhh no user found");
+        }
+        return ResponseEntity.ok(user);
+    }
+
     @DeleteMapping("/deleteUser")
     private ResponseEntity<Boolean> deleteUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

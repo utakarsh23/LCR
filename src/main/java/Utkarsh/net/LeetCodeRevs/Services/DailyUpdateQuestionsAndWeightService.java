@@ -9,6 +9,7 @@ import Utkarsh.net.LeetCodeRevs.Repository.DbQuestionRepository;
 import Utkarsh.net.LeetCodeRevs.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -120,8 +121,13 @@ public class DailyUpdateQuestionsAndWeightService {
             userQuestions = new HashMap<>();
         }
 
-        List<String> questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName());
-
+        List<String> questionTitles;
+        try {
+            questionTitles = leetCodeService.getQuestionTitles(user.getLeetCodeUserName()); //getching the api for last 20 correct submissions, returning it into a List of Strings in one go
+        } catch (Exception e) {
+            questionTitles = new ArrayList<>();
+            System.err.println("Failed to fetch question titles from LeetCode API: " + e.getMessage());
+        }
         for (String title : questionTitles) {
             if (!userQuestions.containsKey(title)) {
                 String link = leetCodeService.fetchLeetcodeLink(title);
@@ -152,6 +158,8 @@ public class DailyUpdateQuestionsAndWeightService {
                     qData.setWeight(1.0);
                     userQuestions.put(title, qData);
                 } catch (Exception e) {
+                    System.out.println("point1");
+
                     user.setUserQuestions(userQuestions);
                     userRepository.save(user);
                     System.out.println("Error With assigning : " + e);
@@ -159,13 +167,14 @@ public class DailyUpdateQuestionsAndWeightService {
             }
         }
 
+        System.out.println("point2");
         updateWeightsForSubmissions(user, userQuestions);
         user.setUserQuestions(userQuestions);
         userRepository.save(user);
     }
 
     @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true)
-    @Scheduled(cron = "0 00 00,12 * * ?")
+    @Scheduled(cron = "00 55 00,12,7 * * ?")
     public void scheduledRefresh() {
         System.out.println("Cache being reset");
         List<User> allUsers = userRepository.findAll();
