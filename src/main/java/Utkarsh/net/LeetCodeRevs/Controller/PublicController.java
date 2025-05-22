@@ -47,6 +47,9 @@ public class PublicController {
     public ResponseEntity<?> login(@RequestBody User loginRequest, HttpServletRequest request) {
         //User loginRequest -> changes the coming JSON data into the User Object,
         //HttpServletRequest -> basically contains client side data such as headers, JWT, cookies, Session info, HTTP Methods(GET/POST/PUT/DEL..), URL's and such user thingys
+
+        String clientIp = getClientIP(request);
+        System.out.println("Login attempt from IP: " + clientIp);
         try {
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
@@ -103,5 +106,13 @@ public class PublicController {
         } else {
             System.out.println("Cache 'leetcodeLinks' not found!");
         }
+    }
+
+    public String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr(); // fallback if no proxy
+        }
+        return xfHeader.split(",")[0]; // sometimes it's a list: client, proxy1, proxy2...
     }
 }
