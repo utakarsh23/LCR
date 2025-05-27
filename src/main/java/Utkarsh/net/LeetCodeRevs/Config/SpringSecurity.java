@@ -36,7 +36,7 @@ public class SpringSecurity {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Public APIs (signup, login, health)
+                        .requestMatchers("/public/**", "/actuator/**").permitAll() // Public APIs (signup, login, health)
                         .requestMatchers("/user/**").authenticated() // Secure user APIs
                         .requestMatchers("/ws/**").permitAll() //public for notifications
                 )

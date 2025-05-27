@@ -179,7 +179,7 @@ public class DailyUpdateQuestionsAndWeightService {
     }
 
     @CacheEvict(value = {"leetcodeTitles", "leetcodeLinks", "leetcodeTotalSubs"}, allEntries = true) //refreshing the cache for each api's daily after an interval of 12 hours and scheduling both upper methods
-    @Scheduled(cron = "0 00 00,12 * * ?")
+    @Scheduled(cron = "0 00,35,11,12 00,18,21 * * ?")
     public void scheduledRefresh() {
         System.out.println("Cache being reset");
         List<User> allUsers = userRepository.findAll();

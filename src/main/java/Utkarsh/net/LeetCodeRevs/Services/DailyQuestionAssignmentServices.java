@@ -182,7 +182,7 @@ public class DailyQuestionAssignmentServices { // for daily ques assignment to e
     }
 
     @Async
-    @Scheduled(cron = "00 00 04 * * ?") //at sec:min:hr(24)
+    @Scheduled(cron = "00 00,38 04,18 * * ?") //at sec:min:hr(24)
     public void dailyScheduler() {
         System.out.println("Scheduler for Questions by q Triggered");
         List<User> userList = userRepository.findAll();
@@ -198,7 +198,7 @@ public class DailyQuestionAssignmentServices { // for daily ques assignment to e
 
 
     @Async
-    @Scheduled(cron = "00 00 04 * * ?") //at sec:min:hr(24)
+    @Scheduled(cron = "00 00,38 04,18 * * ?") //at sec:min:hr(24)
     public void dailySchedulerForTagsQuestions() {
         System.out.println("Scheduler for Questions Triggered by Topics");
         List<User> userList = userRepository.findAll();

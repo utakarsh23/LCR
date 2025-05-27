@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-//used for the API also it's POJO for storirg the tags and links thou, rest are not needed so removed them
+//used for the API also it's POJO for storing the tags and links thou, rest are not needed so removed them
 @Data
 public class LeetCodeResponse {
     private int count;

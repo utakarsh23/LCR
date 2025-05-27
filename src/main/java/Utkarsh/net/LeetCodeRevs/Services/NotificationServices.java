@@ -34,7 +34,7 @@ public class NotificationServices {
         // enabling personalized real-time messaging per user.
     }
 
-    @Scheduled(cron = "00 00 20 * * ?")
+    @Scheduled(cron = "00 31 22 * * ?")
     @Async // run this method asynchronously (in background thread)
     public void remindUsersToSolveDailyQuestion() { // add feature to not send messages to the user who already solved today's question
         System.out.println("Reminder to solving question given");
@@ -54,7 +54,7 @@ public class NotificationServices {
         }
     }
 
-    @Scheduled(cron = "00 00 05 * * ?")
+    @Scheduled(cron = "00 40 23 * * ?")
     @Async
     public void questionAssignmentNotification() { // add feature to not to sned messages to the user who already solved today's question
         System.out.println("Reminder to assignment of question given");
